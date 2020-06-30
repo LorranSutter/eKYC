@@ -260,6 +260,6 @@ sleep 10
 
 # Query chaincode on peer0.org1
 echo "Querying chaincode on peer0.org1..."
-# chaincodeQuery 1
+chaincodeQuery 1
 
 exit 0
