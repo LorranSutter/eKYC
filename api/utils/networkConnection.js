@@ -6,7 +6,7 @@ const path = require('path');
 
 const { Gateway, Wallets } = require('fabric-network');
 
-module.exports.getNetwork = async () => {
+async function getGateWay() {
     // load the network configuration
     const ccpPath = path.resolve(
         __dirname,
@@ -32,21 +32,43 @@ module.exports.getNetwork = async () => {
         discovery: { enabled: true, asLocalhost: true },
     });
 
+    return gateway;
+}
+
+exports.evaluateTransaction = async (transaction, params = null) => {
+
+    const gateway = getGateWay();
+
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork('mychannel');
 
-    return network;
     // Get the contract from the network.
-    // const contract = network.getContract('fabcar');
-    // const result =
-    //     evaluate ?
-    //         params ?
-    //             await contract.evaluateTransaction(transaction, ...params) :
-    //             await contract.evaluateTransaction(transaction)
-    //         :
-    //         await contract.submitTransaction(transaction, ...params);
+    const contract = network.getContract('fabcar');
+    const result =
+        params ?
+            await contract.evaluateTransaction(transaction, ...params) :
+            await contract.evaluateTransaction(transaction);
 
-    // gateway.disconnect();
+    gateway.disconnect();
 
-    // return result;
+    return result;
+};
+
+exports.submitTransaction = async (transaction, params = null) => {
+
+    const gateway = getGateWay();
+
+    // Get the network (channel) our contract is deployed to.
+    const network = await gateway.getNetwork('mychannel');
+
+    // Get the contract from the network.
+    const contract = network.getContract('fabcar');
+    const result =
+        params ?
+            await contract.submitTransaction(transaction, ...params) :
+            await contract.submitTransaction(transaction);
+
+    gateway.disconnect();
+
+    return result;
 };
