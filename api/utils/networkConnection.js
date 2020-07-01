@@ -1,0 +1,52 @@
+
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+const { Gateway, Wallets } = require('fabric-network');
+
+module.exports.getNetwork = async () => {
+    // load the network configuration
+    const ccpPath = path.resolve(
+        __dirname,
+        '..',
+        '..',
+        'test-network',
+        'organizations',
+        'peerOrganizations',
+        'org1.example.com',
+        'connection-org1.json'
+    );
+
+    const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+    // Create a new gateway for connecting to our peer node.
+    const gateway = new Gateway();
+    await gateway.connect(ccp, {
+        wallet,
+        identity: 'appUser',
+        discovery: { enabled: true, asLocalhost: true },
+    });
+
+    // Get the network (channel) our contract is deployed to.
+    const network = await gateway.getNetwork('mychannel');
+
+    return network;
+    // Get the contract from the network.
+    // const contract = network.getContract('fabcar');
+    // const result =
+    //     evaluate ?
+    //         params ?
+    //             await contract.evaluateTransaction(transaction, ...params) :
+    //             await contract.evaluateTransaction(transaction)
+    //         :
+    //         await contract.submitTransaction(transaction, ...params);
+
+    // gateway.disconnect();
+
+    // return result;
+};
