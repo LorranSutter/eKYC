@@ -15,8 +15,13 @@
     "author": "Hyperledger",
     "license": "Apache-2.0",
     "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "cookie-parser": "^1.4.5",
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
         "fabric-ca-client": "^2.1.1",
-        "fabric-network": "^2.1.1"
+        "fabric-network": "^2.1.1",
+        "jsonwebtoken": "^8.5.1"
     },
     "devDependencies": {
         "chai": "^4.2.0",
