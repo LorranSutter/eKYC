@@ -28,7 +28,7 @@ fi
 rm -rf api/wallet/*
 
 # launch network; create channel and join peer to channel
-pushd ../test-network
+pushd ./test-network
 ./network.sh down
 ./network.sh up createChannel -ca -s couchdb
 ./network.sh deployCC -l ${CC_SRC_LANGUAGE}
