@@ -7,85 +7,114 @@
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
-const ClientIdentity = require('fabric-shim').ClientIdentity;
 
-const initialUserData = require('../data/initialUserData.json');
+const initialClientData = require('../data/initialClientData.json');
+const initialFIData = require('../data/initialFIData.json');
 
 class eKYC extends Contract {
 
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
-        const users = initialUserData;
+        const clients = initialClientData;
+        const fis = initialFIData;
 
-        for (let i = 0; i < users.length; i++) {
-            users[i].docType = 'user';
-            await ctx.stub.putState('USER' + i, Buffer.from(JSON.stringify(users[i])));
-            console.info('Added <--> ', users[i]);
+        for (let i = 0; i < clients.length; i++) {
+            clients[i].docType = 'client';
+            await ctx.stub.putState('CLIENT' + i, Buffer.from(JSON.stringify(clients[i])));
+            console.info('Added <--> ', clients[i]);
+        }
+
+        for (let i = 0; i < fis.length; i++) {
+            fis[i].docType = 'fi';
+            await ctx.stub.putState('FI' + i, Buffer.from(JSON.stringify(fis[i])));
+            console.info('Added <--> ', fis[i]);
         }
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async getCallerId(ctx) {
-        let cid = new ClientIdentity(ctx.stub);
-        const idString = cid.getID(); //'x509'
-        // const idString2 = cid.getIDBytes(); //'x509'
-        // const idString3 = cid.getMSPID(); //'x509'
-        console.info('getCallerId:', idString);
-        const idParams = idString.toString().split('::');
-        return idParams[1].split('CN=')[1];
-        // return [idString, idString2, idString3];
-    }
-
-    async getUserData(ctx, userId) {
-        const userAsBytes = await ctx.stub.getState(userId);
-        if (!userAsBytes || userAsBytes.length === 0) {
-            throw new Error(`${userId} does not exist`);
+    async getClientData(ctx, clientId) {
+        const clientAsBytes = await ctx.stub.getState(clientId);
+        if (!clientAsBytes || clientAsBytes.length === 0) {
+            throw new Error(`${clientId} does not exist`);
         }
-        console.log(userAsBytes.toString());
-        return userAsBytes.toString();
+        console.log(clientAsBytes.toString());
+        return clientAsBytes.toString();
     }
 
-    // TODO Think how to create a good userId
-    async createUser(ctx, userId, firstName, lastName, id) {
-        console.info('============= START : Create user ===========');
+    async getFinancialInstitutionData(ctx, fiId) {
+        const fiAsBytes = await ctx.stub.getState(fiId);
+        if (!fiAsBytes || fiAsBytes.length === 0) {
+            throw new Error(`${fiId} does not exist`);
+        }
+        console.log(fiAsBytes.toString());
+        return fiAsBytes.toString();
+    }
 
-        const user = {
-            docType: 'user',
+    // TODO Think how to create a good clientId
+    async createClient(ctx, clientId, firstName, lastName, id) {
+        console.info('============= START : Create client ===========');
+
+        const client = {
+            docType: 'client',
             firstName,
             lastName,
             id
         };
 
-        await ctx.stub.putState(userId, Buffer.from(JSON.stringify(user)));
-        console.info('============= END : Create User ===========');
+        await ctx.stub.putState(clientId, Buffer.from(JSON.stringify(client)));
+        console.info('============= END : Create client ===========');
     }
 
-    async approve(ctx, userId) {
-        console.log('======== START : Approve company for user data access ==========');
+    async createFinancialInstitution(ctx, fiId, name, id) {
+        console.info('============= START : Create financial institution ===========');
 
-        //  `relations` created for 2-way access like if company id is given then list of users will be fetched  and vice versa too.
-        let relations = 'id1~id2';  //  relation type to be stored on blockchain (company~user or user~company)
-        let companyUserIndexKey = await ctx.stub.createCompositeKey(relations, [companyId.toString(), userId.toString()]);  //  create company~user relation unique key
-        let userCompanyIndexKey = await ctx.stub.createCompositeKey(relations, [userId.toString(), companyId.toString()]);  //  create user~company relation unique key
+        const fi = {
+            docType: 'financial institution',
+            name,
+            id
+        };
 
-        // Validations for composite keys created
-        if (!companyUserIndexKey) {
-            throw new Error('Composite key: companyUserIndexKey is null');
-        }
-
-        if (!userCompanyIndexKey) {
-            throw new Error('Composite key: userCompanyIndexKey is null');
-        }
-
-        console.log(companyUserIndexKey);
-
-        //  Note - passing a 'nil' value will effectively delete the key from state, therefore we pass null character as value
-        await ctx.stub.putState(companyUserIndexKey, Buffer.from('\u0000'));    //  Store company~user unique key relation
-        await ctx.stub.putState(userCompanyIndexKey, Buffer.from('\u0000'));    //  Store user~company unique key relation
-        console.log('======== END : Relation of approved companies for users stored =========');
+        await ctx.stub.putState(fiId, Buffer.from(JSON.stringify(fi)));
+        console.info('============= END : Create financial institution ===========');
     }
 
-    async queryAllUsersData(ctx) {
+    async approve(ctx, clientId, fiId) {
+        console.log('======== START : Approve financial institution for client data access ==========');
+
+        // TODO think if it is necessary create a relation fi~client too
+        const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId.toString(), fiId.toString()]);
+
+        if (!clientFiIndexKey) {
+            throw new Error('Composite key: clientFiIndexKey is null');
+        }
+
+        console.log(clientFiIndexKey);
+
+        await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
+        console.log('======== END : Approve financial institution for client data access =========');
+    }
+
+    async getRelation(ctx, clientId) {
+
+        const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId.toString()]);
+
+        let relationsArray = [];
+        while (true) {
+
+            const responseRange = await relationResultsIterator.next();
+
+            if (!responseRange || !responseRange.value || !responseRange.value.key) {
+                return JSON.stringify(relationsArray);
+            }
+
+            const { attributes } = await ctx.stub.splitCompositeKey(responseRange.value.key);
+
+            relationsArray.push(attributes[1]);
+
+        }
+    }
+
+    async queryAllData(ctx) {
         const startKey = '';
         const endKey = '';
         const allResults = [];
