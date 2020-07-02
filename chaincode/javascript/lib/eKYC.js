@@ -8,138 +8,130 @@
 
 const { Contract } = require('fabric-contract-api');
 
+const initialClientData = require('../data/initialClientData.json');
+const initialFIData = require('../data/initialFIData.json');
+
 class eKYC extends Contract {
 
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
-        // const cars = [
-        //     {
-        //         color: 'blue',
-        //         make: 'Toyota',
-        //         model: 'Prius',
-        //         owner: 'Tomoko',
-        //     },
-        //     {
-        //         color: 'red',
-        //         make: 'Ford',
-        //         model: 'Mustang',
-        //         owner: 'Brad',
-        //     },
-        //     {
-        //         color: 'green',
-        //         make: 'Hyundai',
-        //         model: 'Tucson',
-        //         owner: 'Jin Soo',
-        //     },
-        //     {
-        //         color: 'yellow',
-        //         make: 'Volkswagen',
-        //         model: 'Passat',
-        //         owner: 'Max',
-        //     },
-        //     {
-        //         color: 'black',
-        //         make: 'Tesla',
-        //         model: 'S',
-        //         owner: 'Adriana',
-        //     },
-        //     {
-        //         color: 'purple',
-        //         make: 'Peugeot',
-        //         model: '205',
-        //         owner: 'Michel',
-        //     },
-        //     {
-        //         color: 'white',
-        //         make: 'Chery',
-        //         model: 'S22L',
-        //         owner: 'Aarav',
-        //     },
-        //     {
-        //         color: 'violet',
-        //         make: 'Fiat',
-        //         model: 'Punto',
-        //         owner: 'Pari',
-        //     },
-        //     {
-        //         color: 'indigo',
-        //         make: 'Tata',
-        //         model: 'Nano',
-        //         owner: 'Valeria',
-        //     },
-        //     {
-        //         color: 'brown',
-        //         make: 'Holden',
-        //         model: 'Barina',
-        //         owner: 'Shotaro',
-        //     },
-        // ];
+        const clients = initialClientData;
+        const fis = initialFIData;
 
-        // for (let i = 0; i < cars.length; i++) {
-        //     cars[i].docType = 'car';
-        //     await ctx.stub.putState('CAR' + i, Buffer.from(JSON.stringify(cars[i])));
-        //     console.info('Added <--> ', cars[i]);
-        // }
+        for (let i = 0; i < clients.length; i++) {
+            clients[i].docType = 'client';
+            await ctx.stub.putState('CLIENT' + i, Buffer.from(JSON.stringify(clients[i])));
+            console.info('Added <--> ', clients[i]);
+        }
+
+        for (let i = 0; i < fis.length; i++) {
+            fis[i].docType = 'fi';
+            await ctx.stub.putState('FI' + i, Buffer.from(JSON.stringify(fis[i])));
+            console.info('Added <--> ', fis[i]);
+        }
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    // async queryCar(ctx, carNumber) {
-    //     const carAsBytes = await ctx.stub.getState(carNumber); // get the car from chaincode state
-    //     if (!carAsBytes || carAsBytes.length === 0) {
-    //         throw new Error(`${carNumber} does not exist`);
-    //     }
-    //     console.log(carAsBytes.toString());
-    //     return carAsBytes.toString();
-    // }
+    async getClientData(ctx, clientId) {
+        const clientAsBytes = await ctx.stub.getState(clientId);
+        if (!clientAsBytes || clientAsBytes.length === 0) {
+            throw new Error(`${clientId} does not exist`);
+        }
+        console.log(clientAsBytes.toString());
+        return clientAsBytes.toString();
+    }
 
-    // async createCar(ctx, carNumber, make, model, color, owner) {
-    //     console.info('============= START : Create Car ===========');
+    async getFinancialInstitutionData(ctx, fiId) {
+        const fiAsBytes = await ctx.stub.getState(fiId);
+        if (!fiAsBytes || fiAsBytes.length === 0) {
+            throw new Error(`${fiId} does not exist`);
+        }
+        console.log(fiAsBytes.toString());
+        return fiAsBytes.toString();
+    }
 
-    //     const car = {
-    //         color,
-    //         docType: 'car',
-    //         make,
-    //         model,
-    //         owner,
-    //     };
+    // TODO Think how to create a good clientId
+    async createClient(ctx, clientId, firstName, lastName, id) {
+        console.info('============= START : Create client ===========');
 
-    //     await ctx.stub.putState(carNumber, Buffer.from(JSON.stringify(car)));
-    //     console.info('============= END : Create Car ===========');
-    // }
+        const client = {
+            docType: 'client',
+            firstName,
+            lastName,
+            id
+        };
 
-    // async queryAllCars(ctx) {
-    //     const startKey = '';
-    //     const endKey = '';
-    //     const allResults = [];
-    //     for await (const {key, value} of ctx.stub.getStateByRange(startKey, endKey)) {
-    //         const strValue = Buffer.from(value).toString('utf8');
-    //         let record;
-    //         try {
-    //             record = JSON.parse(strValue);
-    //         } catch (err) {
-    //             console.log(err);
-    //             record = strValue;
-    //         }
-    //         allResults.push({ Key: key, Record: record });
-    //     }
-    //     console.info(allResults);
-    //     return JSON.stringify(allResults);
-    // }
+        await ctx.stub.putState(clientId, Buffer.from(JSON.stringify(client)));
+        console.info('============= END : Create client ===========');
+    }
 
-    // async changeCarOwner(ctx, carNumber, newOwner) {
-    //     console.info('============= START : changeCarOwner ===========');
+    async createFinancialInstitution(ctx, fiId, name, id) {
+        console.info('============= START : Create financial institution ===========');
 
-    //     const carAsBytes = await ctx.stub.getState(carNumber); // get the car from chaincode state
-    //     if (!carAsBytes || carAsBytes.length === 0) {
-    //         throw new Error(`${carNumber} does not exist`);
-    //     }
-    //     const car = JSON.parse(carAsBytes.toString());
-    //     car.owner = newOwner;
+        const fi = {
+            docType: 'financial institution',
+            name,
+            id
+        };
 
-    //     await ctx.stub.putState(carNumber, Buffer.from(JSON.stringify(car)));
-    //     console.info('============= END : changeCarOwner ===========');
-    // }
+        await ctx.stub.putState(fiId, Buffer.from(JSON.stringify(fi)));
+        console.info('============= END : Create financial institution ===========');
+    }
 
+    async approve(ctx, clientId, fiId) {
+        console.log('======== START : Approve financial institution for client data access ==========');
+
+        // TODO think if it is necessary create a relation fi~client too
+        const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId.toString(), fiId.toString()]);
+
+        if (!clientFiIndexKey) {
+            throw new Error('Composite key: clientFiIndexKey is null');
+        }
+
+        console.log(clientFiIndexKey);
+
+        await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
+        console.log('======== END : Approve financial institution for client data access =========');
+    }
+
+    async getRelation(ctx, clientId) {
+
+        const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId.toString()]);
+
+        let relationsArray = [];
+        while (true) {
+
+            const responseRange = await relationResultsIterator.next();
+
+            if (!responseRange || !responseRange.value || !responseRange.value.key) {
+                return JSON.stringify(relationsArray);
+            }
+
+            const { attributes } = await ctx.stub.splitCompositeKey(responseRange.value.key);
+
+            relationsArray.push(attributes[1]);
+
+        }
+    }
+
+    async queryAllData(ctx) {
+        const startKey = '';
+        const endKey = '';
+        const allResults = [];
+        for await (const { key, value } of ctx.stub.getStateByRange(startKey, endKey)) {
+            const strValue = Buffer.from(value).toString('utf8');
+            let record;
+            try {
+                record = JSON.parse(strValue);
+            } catch (err) {
+                console.log(err);
+                record = strValue;
+            }
+            allResults.push({ Key: key, Record: record });
+        }
+        console.info(allResults);
+        return JSON.stringify(allResults);
+    }
 }
 
 module.exports = eKYC;
