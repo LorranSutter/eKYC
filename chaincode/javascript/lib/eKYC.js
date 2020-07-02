@@ -7,111 +7,89 @@
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
+const ClientIdentity = require('fabric-shim').ClientIdentity;
+
+const initialUserData = require('../data/initialUserData.json');
 
 class eKYC extends Contract {
 
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
-        const cars = [
-            {
-                color: 'blue',
-                make: 'Toyota',
-                model: 'Prius',
-                owner: 'Tomoko',
-            },
-            {
-                color: 'red',
-                make: 'Ford',
-                model: 'Mustang',
-                owner: 'Brad',
-            },
-            {
-                color: 'green',
-                make: 'Hyundai',
-                model: 'Tucson',
-                owner: 'Jin Soo',
-            },
-            {
-                color: 'yellow',
-                make: 'Volkswagen',
-                model: 'Passat',
-                owner: 'Max',
-            },
-            {
-                color: 'black',
-                make: 'Tesla',
-                model: 'S',
-                owner: 'Adriana',
-            },
-            {
-                color: 'purple',
-                make: 'Peugeot',
-                model: '205',
-                owner: 'Michel',
-            },
-            {
-                color: 'white',
-                make: 'Chery',
-                model: 'S22L',
-                owner: 'Aarav',
-            },
-            {
-                color: 'violet',
-                make: 'Fiat',
-                model: 'Punto',
-                owner: 'Pari',
-            },
-            {
-                color: 'indigo',
-                make: 'Tata',
-                model: 'Nano',
-                owner: 'Valeria',
-            },
-            {
-                color: 'brown',
-                make: 'Holden',
-                model: 'Barina',
-                owner: 'Shotaro',
-            },
-        ];
+        const users = initialUserData;
 
-        for (let i = 0; i < cars.length; i++) {
-            cars[i].docType = 'car';
-            await ctx.stub.putState('CAR' + i, Buffer.from(JSON.stringify(cars[i])));
-            console.info('Added <--> ', cars[i]);
+        for (let i = 0; i < users.length; i++) {
+            users[i].docType = 'user';
+            await ctx.stub.putState('USER' + i, Buffer.from(JSON.stringify(users[i])));
+            console.info('Added <--> ', users[i]);
         }
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    // async queryCar(ctx, carNumber) {
-    //     const carAsBytes = await ctx.stub.getState(carNumber); // get the car from chaincode state
-    //     if (!carAsBytes || carAsBytes.length === 0) {
-    //         throw new Error(`${carNumber} does not exist`);
-    //     }
-    //     console.log(carAsBytes.toString());
-    //     return carAsBytes.toString();
-    // }
+    async getCallerId(ctx) {
+        let cid = new ClientIdentity(ctx.stub);
+        const idString = cid.getID(); //'x509'
+        // const idString2 = cid.getIDBytes(); //'x509'
+        // const idString3 = cid.getMSPID(); //'x509'
+        console.info('getCallerId:', idString);
+        const idParams = idString.toString().split('::');
+        return idParams[1].split('CN=')[1];
+        // return [idString, idString2, idString3];
+    }
 
-    // async createCar(ctx, carNumber, make, model, color, owner) {
-    //     console.info('============= START : Create Car ===========');
+    async getUserData(ctx, userId) {
+        const userAsBytes = await ctx.stub.getState(userId);
+        if (!userAsBytes || userAsBytes.length === 0) {
+            throw new Error(`${userId} does not exist`);
+        }
+        console.log(userAsBytes.toString());
+        return userAsBytes.toString();
+    }
 
-    //     const car = {
-    //         color,
-    //         docType: 'car',
-    //         make,
-    //         model,
-    //         owner,
-    //     };
+    // TODO Think how to create a good userId
+    async createUser(ctx, userId, firstName, lastName, id) {
+        console.info('============= START : Create user ===========');
 
-    //     await ctx.stub.putState(carNumber, Buffer.from(JSON.stringify(car)));
-    //     console.info('============= END : Create Car ===========');
-    // }
+        const user = {
+            docType: 'user',
+            firstName,
+            lastName,
+            id
+        };
 
-    async queryAllCars(ctx) {
+        await ctx.stub.putState(userId, Buffer.from(JSON.stringify(user)));
+        console.info('============= END : Create User ===========');
+    }
+
+    async approve(ctx, userId) {
+        console.log('======== START : Approve company for user data access ==========');
+
+        //  `relations` created for 2-way access like if company id is given then list of users will be fetched  and vice versa too.
+        let relations = 'id1~id2';  //  relation type to be stored on blockchain (company~user or user~company)
+        let companyUserIndexKey = await ctx.stub.createCompositeKey(relations, [companyId.toString(), userId.toString()]);  //  create company~user relation unique key
+        let userCompanyIndexKey = await ctx.stub.createCompositeKey(relations, [userId.toString(), companyId.toString()]);  //  create user~company relation unique key
+
+        // Validations for composite keys created
+        if (!companyUserIndexKey) {
+            throw new Error('Composite key: companyUserIndexKey is null');
+        }
+
+        if (!userCompanyIndexKey) {
+            throw new Error('Composite key: userCompanyIndexKey is null');
+        }
+
+        console.log(companyUserIndexKey);
+
+        //  Note - passing a 'nil' value will effectively delete the key from state, therefore we pass null character as value
+        await ctx.stub.putState(companyUserIndexKey, Buffer.from('\u0000'));    //  Store company~user unique key relation
+        await ctx.stub.putState(userCompanyIndexKey, Buffer.from('\u0000'));    //  Store user~company unique key relation
+        console.log('======== END : Relation of approved companies for users stored =========');
+    }
+
+    async queryAllUsersData(ctx) {
         const startKey = '';
         const endKey = '';
         const allResults = [];
-        for await (const {key, value} of ctx.stub.getStateByRange(startKey, endKey)) {
+        for await (const { key, value } of ctx.stub.getStateByRange(startKey, endKey)) {
             const strValue = Buffer.from(value).toString('utf8');
             let record;
             try {
@@ -125,21 +103,6 @@ class eKYC extends Contract {
         console.info(allResults);
         return JSON.stringify(allResults);
     }
-
-    // async changeCarOwner(ctx, carNumber, newOwner) {
-    //     console.info('============= START : changeCarOwner ===========');
-
-    //     const carAsBytes = await ctx.stub.getState(carNumber); // get the car from chaincode state
-    //     if (!carAsBytes || carAsBytes.length === 0) {
-    //         throw new Error(`${carNumber} does not exist`);
-    //     }
-    //     const car = JSON.parse(carAsBytes.toString());
-    //     car.owner = newOwner;
-
-    //     await ctx.stub.putState(carNumber, Buffer.from(JSON.stringify(car)));
-    //     console.info('============= END : changeCarOwner ===========');
-    // }
-
 }
 
 module.exports = eKYC;
