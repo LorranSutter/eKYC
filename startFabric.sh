@@ -34,9 +34,9 @@ pushd ./test-network
 ./network.sh deployCC -l ${CC_SRC_LANGUAGE}
 popd
 
-pushd ./api
-node enrollAdmin1.js
-node registerUser1.js
+pushd ./api/utils
+node enrollAdmin.js
+node registerUser.js
 popd
 
 cat <<EOF
