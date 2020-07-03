@@ -21,7 +21,7 @@ async function getGateWay() {
 
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
-    const walletPath = path.join(process.cwd(), 'wallet');
+    const walletPath = path.join(process.cwd(), '../wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
     // Create a new gateway for connecting to our peer node.
@@ -37,13 +37,13 @@ async function getGateWay() {
 
 exports.evaluateTransaction = async (transaction, params = null) => {
 
-    const gateway = getGateWay();
+    const gateway = await getGateWay();
 
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork('mychannel');
 
     // Get the contract from the network.
-    const contract = network.getContract('fabcar');
+    const contract = network.getContract('eKYC');
     const result =
         params ?
             await contract.evaluateTransaction(transaction, ...params) :
@@ -56,13 +56,13 @@ exports.evaluateTransaction = async (transaction, params = null) => {
 
 exports.submitTransaction = async (transaction, params = null) => {
 
-    const gateway = getGateWay();
+    const gateway = await getGateWay();
 
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork('mychannel');
 
     // Get the contract from the network.
-    const contract = network.getContract('fabcar');
+    const contract = network.getContract('eKYC');
     const result =
         params ?
             await contract.submitTransaction(transaction, ...params) :
