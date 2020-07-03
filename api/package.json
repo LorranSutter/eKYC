@@ -23,9 +23,11 @@
         "dotenv": "^8.2.0",
         "fabric-ca-client": "^2.1.1",
         "fabric-network": "^2.1.1",
-        "jsonwebtoken": "^8.5.1"
+        "jsonwebtoken": "^8.5.1",
+        "mongoose": "^5.9.21"
     },
     "devDependencies": {
+        "async": "^3.2.0",
         "chai": "^4.2.0",
         "eslint": "^5.9.0",
         "mocha": "^8.0.1",

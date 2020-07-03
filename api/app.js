@@ -8,7 +8,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 
 const indexRouter = require('./routes/index');
-const userRouter = require('./routes/user');
+const clientRouter = require('./routes/client');
 const financialInstitutionRouter = require('./routes/financialInstitution');
 
 const app = express();
@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
-app.use('/user', userRouter);
+app.use('/client', clientRouter);
 app.use('/financialInsitution', financialInstitutionRouter);
 
 // catch 404 and forward to error handler
