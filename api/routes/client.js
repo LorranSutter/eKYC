@@ -9,6 +9,8 @@ router.post('/create', clientController.create);
 
 router.post('/login', clientController.login);
 
+router.get('/getClientData', clientController.getClientData);
+
 router.post('/approve', clientController.approve);
 
 module.exports = router;
