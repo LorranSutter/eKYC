@@ -37,6 +37,7 @@ popd
 pushd ./api/utils
 node enrollAdmin.js
 node registerUser.js
+node populate.js
 popd
 
 cat <<EOF
