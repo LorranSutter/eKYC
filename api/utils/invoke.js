@@ -1,11 +1,3 @@
-/*
- * Copyright IBM Corp. All Rights Reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
-'use strict';
-
 const { Gateway, Wallets } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
@@ -13,7 +5,7 @@ const path = require('path');
 async function main() {
     try {
         // load the network configuration
-        const ccpPath = path.resolve(__dirname, '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
         let ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
         // Create a new file system based wallet for managing identities.
@@ -22,16 +14,16 @@ async function main() {
         console.log(`Wallet path: ${walletPath}`);
 
         // Check to see if we've already enrolled the user.
-        const identity = await wallet.get('appUser1');
+        const identity = await wallet.get('appUser');
         if (!identity) {
-            console.log('An identity for the user "appUser1" does not exist in the wallet');
+            console.log('An identity for the user "appUser" does not exist in the wallet');
             console.log('Run the registerUser.js application before retrying');
             return;
         }
 
         // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: 'appUser1', discovery: { enabled: true, asLocalhost: true } });
+        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork('mychannel');
@@ -39,9 +31,22 @@ async function main() {
         // Get the contract from the network.
         const contract = network.getContract('eKYC');
 
+        const clientData = {
+            name: 'New User',
+            dateOfBirth: '09-06-1981',
+            address: 'Toronto',
+            idNumber: '123456'
+        };
+
+        const fiData = {
+            name: 'Financial Institution 4',
+            idNumber: '123456'
+        };
+
         // Submit the specified transaction.
-        await contract.submitTransaction('createClient', 'CLIENT6', 'Lorran', 'Sutter', '6');
-        await contract.submitTransaction('createFinancialInstitution', 'FI4', 'Financial Institution 4', '4');
+        await contract.submitTransaction('createClient', JSON.stringify(clientData));
+        await contract.submitTransaction('createFinancialInstitution', JSON.stringify(fiData));
+        await contract.submitTransaction('approve', 'CLIENT0', 'FI0');
         console.log('Transaction has been submitted');
 
         // Disconnect from the gateway.

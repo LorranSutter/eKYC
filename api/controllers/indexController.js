@@ -1,5 +1,3 @@
-'use strict';
-
 const networkConnection = require('../utils/networkConnection');
 
 exports.queryCar = (req, res) => {

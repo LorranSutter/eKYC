@@ -1,5 +1,3 @@
-'use strict';
-
 const User = require('../models/user');
 
 exports.userCreate = async function (login, password, userType, ledgerId) {
