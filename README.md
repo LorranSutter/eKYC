@@ -13,11 +13,11 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/Nas2020">Cherukkatil Naseer</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-    <a href="https://github.com/TheClockworkOrange">Henry Eriko Mwenge</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-    <a href="https://github.com/LorranSutter">Lorran Sutter</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-    <a href="https://github.com/pumpin100">Raymond Lawal</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-    <a href="https://github.com/mascarenhaswanja">Wanja Mascarenhas</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://github.com/Nas2020">Cherukkatil Naseer</a>&nbsp;|&nbsp;
+    <a href="https://github.com/TheClockworkOrange">Henry Eriko Mwenge</a>&nbsp;|&nbsp;
+    <a href="https://github.com/LorranSutter">Lorran Sutter</a>&nbsp;|&nbsp;
+    <a href="https://github.com/pumpin100">Raymond Lawal</a>&nbsp;|&nbsp;
+    <a href="https://github.com/mascarenhaswanja">Wanja Mascarenhas</a>&nbsp;|&nbsp;
     <a href="https://github.com/DeadPreZ-101">Zakariya Jasat</a>
 </p>
 
