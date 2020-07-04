@@ -1,14 +1,11 @@
 [
     {
-        "name": "Financial Institution 1",
-        "id": 1
+        "name": "Financial Institution 1"
     },
     {
-        "name": "Financial Institution 2",
-        "id": 2
+        "name": "Financial Institution 2"
     },
     {
-        "name": "Financial Institution 3",
-        "id": 3
+        "name": "Financial Institution 3"
     }
 ]

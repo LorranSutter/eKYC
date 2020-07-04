@@ -9,19 +9,29 @@
     "scripts": {
         "lint": "eslint .",
         "pretest": "npm run lint",
-        "test": "nyc mocha --recursive"
+        "test": "nyc mocha --recursive",
+        "start": "node server.js",
+        "dev": "nodemon server.js"
     },
     "engineStrict": true,
     "author": "Hyperledger",
     "license": "Apache-2.0",
     "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "cookie-parser": "^1.4.5",
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
         "fabric-ca-client": "^2.1.1",
-        "fabric-network": "^2.1.1"
+        "fabric-network": "^2.1.1",
+        "jsonwebtoken": "^8.5.1",
+        "mongoose": "^5.9.21"
     },
     "devDependencies": {
+        "async": "^3.2.0",
         "chai": "^4.2.0",
         "eslint": "^5.9.0",
         "mocha": "^8.0.1",
+        "nodemon": "^2.0.4",
         "nyc": "^14.1.1",
         "sinon": "^7.1.1",
         "sinon-chai": "^3.3.0"

@@ -30,7 +30,7 @@ module.exports = {
         'no-use-before-define': 'error',
         'no-useless-call': 'error',
         'no-with': 'error',
-        'operator-linebreak': 'error',
+        'operator-linebreak': [2, "after"],
         yoda: 'error',
         'quote-props': ['error', 'as-needed']
     }

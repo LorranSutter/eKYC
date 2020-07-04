@@ -18,7 +18,7 @@ async function main() {
         const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
         // Create a new file system based wallet for managing identities.
-        const walletPath = path.join(process.cwd(), 'wallet');
+        const walletPath = path.join(process.cwd(), '../wallet');
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 
@@ -41,15 +41,11 @@ async function main() {
         const contract = network.getContract('eKYC');
 
         // Evaluate the specified transaction.
-        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
-        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
-        const callerId = await contract.evaluateTransaction('getCallerId');
-        console.log(callerId.toString());
         const result = await contract.evaluateTransaction('queryAllData');
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
 
         // Disconnect from the gateway.
-        await gateway.disconnect();
+        gateway.disconnect();
 
     } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
