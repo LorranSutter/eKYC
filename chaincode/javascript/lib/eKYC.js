@@ -40,6 +40,7 @@ class eKYC extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
+    // TODO Make possible to choose what info the caller wants
     async getClientData(ctx, clientId, fiId = null) {
 
         if (fiId) {
