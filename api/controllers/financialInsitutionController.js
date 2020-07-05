@@ -42,15 +42,16 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const fiJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
+    const userJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
 
-    return res.json({ fiJWT, ledgerId: fi.ledgerId });
+    return res.json({ userJWT, ledgerId: fi.ledgerId });
 };
 
 exports.getClientDataByFI = (req, res) => {
 
     const { clientId, fields } = req.body;
 
+    // TODO use cookies for ledgerId
     networkConnection
         .evaluateTransaction('getClientDataByFI', [req.query.ledgerId, clientId, fields])
         .then(result => {

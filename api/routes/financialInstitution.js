@@ -2,11 +2,14 @@ const express = require('express');
 const router = express.Router();
 
 const financialInsitutionController = require('../controllers/financialInsitutionController');
+const { checkLogin } = require('../middleware/auth');
+const fiValidator = require('../middleware/fiValidator');
+const { validate } = require('../middleware/validate');
 
-router.post('/create', financialInsitutionController.create);
+router.post('/create', fiValidator.registration, validate, financialInsitutionController.create);
 
-router.post('/login', financialInsitutionController.login);
+router.post('/login', fiValidator.login, validate, financialInsitutionController.login);
 
-router.post('/getClientDataByFI', financialInsitutionController.getClientDataByFI);
+router.post('/getClientDataByFI', checkLogin, financialInsitutionController.getClientDataByFI);
 
 module.exports = router;
