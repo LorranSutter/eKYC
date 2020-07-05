@@ -5,16 +5,17 @@ const User = require('../models/user');
 const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
 
-exports.create = (req, res, next) => {
+exports.create = (req, res) => {
 
-    const { login, password, name, id } = req.body;
+    const { login, password, name, idNumber } = req.body;
+    const fiData = JSON.stringify({ name, idNumber });
 
     networkConnection
-        .submitTransaction('createFinancialInstitution', [name, id])
+        .submitTransaction('createFinancialInstitution', [fiData])
         .then(async result => {
             if (result) {
-                await io.userCreate(login, password, 'fi', result.ledgerId);
-                return res.json({ result: 'Financial institution created', ledgerId: result.ledgerId });
+                await io.userCreate(login, password, 'fi', result.toString());
+                return res.json({ result: 'Financial institution created', ledgerId: result.toString() });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -25,15 +26,15 @@ exports.create = (req, res, next) => {
 
 exports.login = async (req, res) => {
 
-    const { name, password } = req.body;
+    const { login, password } = req.body;
 
-    if (!name || !password) {
-        return res.status(401).json({ message: 'Invalid name/password' });
+    if (!login || !password) {
+        return res.status(401).json({ message: 'Invalid login/password' });
     }
 
-    const fi = await User.findOne({ name });
+    const fi = await User.findOne({ login });
     if (!fi) {
-        return res.status(401).json({ message: 'Invalid name' });
+        return res.status(401).json({ message: 'Invalid login' });
     }
 
     const isMatch = await bcrypt.compare(password, fi.password);
@@ -41,20 +42,23 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const fiJWT = jwt.sign({ name }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
+    const fiJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
 
     return res.json({ fiJWT, ledgerId: fi.ledgerId });
 };
 
-exports.getClientData = (req, res) => {
+exports.getClientDataByFI = (req, res) => {
 
-    const { clientId } = req.body;
+    const { clientId, fields } = req.body;
 
     networkConnection
-        .evaluateTransaction('getClientData', [clientId, req.query.fiId])
+        .evaluateTransaction('getClientDataByFI', [req.query.ledgerId, clientId, fields])
         .then(result => {
             if (result) {
-                return res.json({ clientData: result });
+                if (result.length > 0) {
+                    return res.json({ clientData: JSON.parse(result.toString()) });
+                }
+                return res.json({ clientData: result.toString() });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })

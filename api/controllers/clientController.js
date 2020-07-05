@@ -5,16 +5,17 @@ const User = require('../models/user');
 const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
 
-exports.create = (req, res, next) => {
+exports.create = (req, res) => {
 
-    const { login, password, firstName, lastName, id } = req.body;
+    const { login, password, name, dateOfBirth, address, idNumber } = req.body;
+    const clientData = JSON.stringify({ name, dateOfBirth, address, idNumber });
 
     networkConnection
-        .submitTransaction('createClient', [firstName, lastName, id])
+        .submitTransaction('createClient', [clientData])
         .then(async result => {
             if (result) {
-                await io.userCreate(login, password, 'client', result.ledgerId);
-                return res.json({ result: 'Client created', ledgerId: result.ledgerId });
+                await io.userCreate(login, password, 'client', result.toString());
+                return res.json({ result: 'Client created', ledgerId: result.toString() });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -25,15 +26,15 @@ exports.create = (req, res, next) => {
 
 exports.login = async (req, res) => {
 
-    const { name, password } = req.body;
+    const { login, password } = req.body;
 
-    if (!name || !password) {
-        return res.status(401).json({ message: 'Invalid name/password' });
+    if (!login || !password) {
+        return res.status(401).json({ message: 'Invalid login/password' });
     }
 
-    const client = await User.findOne({ name });
+    const client = await User.findOne({ login });
     if (!client) {
-        return res.status(401).json({ message: 'Invalid name' });
+        return res.status(401).json({ message: 'Invalid login' });
     }
 
     const isMatch = await bcrypt.compare(password, client.password);
@@ -41,17 +42,23 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const clientJWT = jwt.sign({ name }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
+    const clientJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
 
     return res.json({ clientJWT, ledgerId: client.ledgerId });
 };
 
 exports.getClientData = (req, res) => {
+
+    const fields = req.body.fields;
+
     networkConnection
-        .evaluateTransaction('getClientData', [req.query.ledgerId])
+        .evaluateTransaction('getClientData', [req.query.ledgerId, fields])
         .then(result => {
             if (result) {
-                return res.json({ clientData: result });
+                if (result.length > 0) {
+                    return res.json({ clientData: JSON.parse(result.toString()) });
+                }
+                return res.json({ clientData: result.toString() });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -62,12 +69,13 @@ exports.getClientData = (req, res) => {
 
 exports.approve = async (req, res) => {
 
-    // TODO Approve FI to access client data
+    const { fiId } = req.body;
+
     networkConnection
-        .submitTransaction('approve', [req.query.clientId, req.query.fiId])
+        .submitTransaction('approve', [req.query.ledgerId, fiId])
         .then(result => {
             if (result) {
-                return res.json({ message: `FI ${req.query.fiId} approved` });
+                return res.json({ message: `Financial Institution ${fiId} approved by ${req.query.ledgerId}` });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })

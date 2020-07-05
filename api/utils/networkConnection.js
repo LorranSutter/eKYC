@@ -18,7 +18,7 @@ async function getGateWay() {
 
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
-    const walletPath = path.join(process.cwd(), '../wallet');
+    const walletPath = path.join(__dirname, '../wallet');
     const wallet = await Wallets.newFileSystemWallet(walletPath);
 
     // Create a new gateway for connecting to our peer node.

@@ -17,7 +17,7 @@ function saveUser(user, cb) {
     let currentLogin, currentUserType;
 
     if (user.Key.match(/^CLIENT\d+$/)) {
-        currentLogin = user.Record.firstName + user.Record.lastName;
+        currentLogin = user.Record.name;
         currentUserType = 'client';
     } else if (user.Key.match(/^FI\d+$/)) {
         currentLogin = user.Record.name;

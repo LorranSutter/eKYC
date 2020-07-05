@@ -36,10 +36,10 @@ async function main() {
         // const fields = [];
 
         // Evaluate the specified transaction.
-        // const result = await contract.evaluateTransaction('getClientData', fields, 'CLIENT0');
+        // const result = await contract.evaluateTransaction('getClientData', 'CLIENT0', fields);
         // const result = await contract.evaluateTransaction('queryAllData');
         // console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
-        const result2 = await contract.evaluateTransaction('getClientDataByFI', fields, 'CLIENT0', 'FI0');
+        const result2 = await contract.evaluateTransaction('getClientDataByFI', 'FI0', 'CLIENT0', fields);
         console.log(`Transaction has been evaluated, result is: ${result2.toString()}`);
 
         // Disconnect from the gateway.

@@ -7,6 +7,6 @@ router.post('/create', financialInsitutionController.create);
 
 router.post('/login', financialInsitutionController.login);
 
-router.get('/getClientData', financialInsitutionController.getClientData);
+router.post('/getClientDataByFI', financialInsitutionController.getClientDataByFI);
 
 module.exports = router;
