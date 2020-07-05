@@ -23,7 +23,26 @@
 
 ## :runner: How to run
 
-Open your terminal in the folder you want to clone the project
+You must have [Fabric samples](https://github.com/hyperledger/fabric-samples) to run this project. You will clone this project inside fabric-samples folder so as to this can use the files from bin and config folders.
+
+Here you can see the folder structure and the main files mentioned in this section:
+
+```
+📦fabric-samples
+ ┣ 📂bin
+ ┣ 📂config
+ ┗ 📂eKYC
+    ┣ 📂api
+    ┣ 📂chaincode
+    ┣ 📂frontend
+    ┣ 📂test-network
+    ┣ 📜.env
+    ┣ 📜networkDown.sh
+    ┣ 📜startFabric.sh
+    ┗ 📜package.json
+```
+
+Open your terminal in the folder you want to clone the project in fabric-samples folder.
 
 ``` sh
 # Clone this repo
