@@ -36,9 +36,9 @@ cd eKYC
 To run the application you will need to set your own configurations of _port_, _database_ and _private key_. Create the following .env file in the indicated path and format with your customized configurations:
 
 ``` json
-// ./api/.env
+// ./.env
 
-PORT=5000
+PORT_API=5000
 PRIVATE_KEY="YOUR_STRONG_PRIVATE_KEY"
 MONGODB_URI_DEV="YOUR_DEV_MONGO_URI"
 ```

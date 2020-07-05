@@ -8,8 +8,11 @@ module.exports = {
         mocha: true
     },
     parserOptions: {
-        ecmaVersion: 8,
-        sourceType: 'script'
+        ecmaVersion: 2018,
+        sourceType: "module",
+        ecmaFeatures: {
+            jsx: true,
+        }
     },
     extends: "eslint:recommended",
     rules: {
@@ -30,7 +33,7 @@ module.exports = {
         'no-use-before-define': 'error',
         'no-useless-call': 'error',
         'no-with': 'error',
-        'operator-linebreak': 'error',
+        'operator-linebreak': [2, "after"],
         yoda: 'error',
         'quote-props': ['error', 'as-needed']
     }

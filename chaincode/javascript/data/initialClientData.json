@@ -1,27 +1,32 @@
 [
     {
-        "firstName": "Jonas",
-        "lastName": "Kahnwald",
-        "id": 1
+        "name": "Jonas Kahnwald",
+        "dateOfBirth": "01-07-2002",
+        "address": "Winden",
+        "idNumber": "123456"
     },
     {
-        "firstName": "Martha",
-        "lastName": "Nielsen",
-        "id": 2
+        "name": "Martha Nielsen",
+        "dateOfBirth": "05-04-2002",
+        "address": "Winden",
+        "idNumber": "123123"
     },
     {
-        "firstName": "Claudia",
-        "lastName": "Tiedemann",
-        "id": 3
+        "name": "Claudia Tiedemann",
+        "dateOfBirth": "17-10-1942",
+        "address": "Winden",
+        "idNumber": "123321"
     },
     {
-        "firstName": "Elisabeth",
-        "lastName": "Doppler",
-        "id": 4
+        "name": "Elisabeth Doppler",
+        "dateOfBirth": "21-12-2011",
+        "address": "Winden",
+        "idNumber": "654321"
     },
     {
-        "firstName": "H.G.",
-        "lastName": "Tannhaus",
-        "id": 5
+        "name": "H.G. Tannhaus",
+        "dateOfBirth": "07-11-1923",
+        "address": "Winden",
+        "idNumber": "654123"
     }
 ]

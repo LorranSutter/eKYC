@@ -1,103 +1,135 @@
-/*
- * Copyright IBM Corp. All Rights Reserved.
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
-'use strict';
-
 const { Contract } = require('fabric-contract-api');
+// TODO maybe use shim to return success messages
+// Example: return shim.success(Buffer.from('saveData Successful!'));
+// const shim = require('fabric-shim');
 
 const initialClientData = require('../data/initialClientData.json');
 const initialFIData = require('../data/initialFIData.json');
 
 class eKYC extends Contract {
 
+    constructor() {
+        super();
+        this.nextClientId = 0;
+        this.nextFiId = 0;
+    }
+
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
         const clients = initialClientData;
         const fis = initialFIData;
 
-        for (let i = 0; i < clients.length; i++) {
-            clients[i].docType = 'client';
-            await ctx.stub.putState('CLIENT' + i, Buffer.from(JSON.stringify(clients[i])));
-            console.info('Added <--> ', clients[i]);
+        for (const client of clients) {
+            client.docType = 'client';
+            await ctx.stub.putState('CLIENT' + this.nextClientId, Buffer.from(JSON.stringify(client)));
+            console.info('Added <--> ', client);
+            this.nextClientId++;
         }
 
-        for (let i = 0; i < fis.length; i++) {
-            fis[i].docType = 'fi';
-            await ctx.stub.putState('FI' + i, Buffer.from(JSON.stringify(fis[i])));
-            console.info('Added <--> ', fis[i]);
+        for (const fi of fis) {
+            fi.docType = 'fi';
+            await ctx.stub.putState('FI' + this.nextFiId, Buffer.from(JSON.stringify(fi)));
+            console.info('Added <--> ', fi);
+            this.nextFiId++;
         }
+
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async getClientData(ctx, clientId) {
+    async getClientData(ctx, clientId, fields) {
+
         const clientAsBytes = await ctx.stub.getState(clientId);
         if (!clientAsBytes || clientAsBytes.length === 0) {
-            throw new Error(`${clientId} does not exist`);
+            return null;
         }
-        console.log(clientAsBytes.toString());
-        return clientAsBytes.toString();
+
+        if (fields) {
+            fields = fields.split(',');
+            const clientAsJson = JSON.parse(clientAsBytes.toString());
+
+            let result = {};
+            for (const field of fields) {
+                if (clientAsJson.hasOwnProperty(field)) {
+                    result[field] = clientAsJson[field];
+                }
+            }
+            return result;
+        }
+        return clientAsBytes;
+    }
+
+    async getClientDataByFI(ctx, fiId, clientId, fields) {
+
+        const relations = await this.getRelationByFi(ctx, fiId);
+        if (!relations.includes(clientId)) {
+            return null;
+        }
+
+        return await this.getClientData(ctx, clientId, fields);
     }
 
     async getFinancialInstitutionData(ctx, fiId) {
         const fiAsBytes = await ctx.stub.getState(fiId);
         if (!fiAsBytes || fiAsBytes.length === 0) {
-            throw new Error(`${fiId} does not exist`);
+            return null;
         }
-        console.log(fiAsBytes.toString());
         return fiAsBytes.toString();
     }
 
-    // TODO Think how to create a good clientId
-    async createClient(ctx, clientId, firstName, lastName, id) {
+    async createClient(ctx, clientData) {
         console.info('============= START : Create client ===========');
 
         const client = {
             docType: 'client',
-            firstName,
-            lastName,
-            id
+            ...JSON.parse(clientData)
         };
 
-        await ctx.stub.putState(clientId, Buffer.from(JSON.stringify(client)));
+        const newId = 'CLIENT' + this.nextClientId;
+        this.nextClientId++;
+
+        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
         console.info('============= END : Create client ===========');
+
+        return newId;
     }
 
-    async createFinancialInstitution(ctx, fiId, name, id) {
+    async createFinancialInstitution(ctx, fiData) {
         console.info('============= START : Create financial institution ===========');
 
         const fi = {
-            docType: 'financial institution',
-            name,
-            id
+            docType: 'fi',
+            ...JSON.parse(fiData)
         };
 
-        await ctx.stub.putState(fiId, Buffer.from(JSON.stringify(fi)));
+        const newId = 'FI' + this.nextFiId;
+        this.nextFiId++;
+
+        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(fi)));
         console.info('============= END : Create financial institution ===========');
+
+        return newId;
     }
 
     async approve(ctx, clientId, fiId) {
         console.log('======== START : Approve financial institution for client data access ==========');
 
-        // TODO think if it is necessary create a relation fi~client too
-        const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId.toString(), fiId.toString()]);
+        const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId, fiId]);
+        const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [fiId, clientId]);
 
         if (!clientFiIndexKey) {
             throw new Error('Composite key: clientFiIndexKey is null');
         }
 
-        console.log(clientFiIndexKey);
+        if (!fiClientIndexKey) {
+            throw new Error('Composite key: fiClientIndexKey is null');
+        }
 
         await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
+        await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
         console.log('======== END : Approve financial institution for client data access =========');
     }
 
-    async getRelation(ctx, clientId) {
-
-        const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId.toString()]);
-
+    async getRelationsArray(ctx, relationResultsIterator) {
         let relationsArray = [];
         while (true) {
 
@@ -112,6 +144,20 @@ class eKYC extends Contract {
             relationsArray.push(attributes[1]);
 
         }
+    }
+
+    async getRelationByClient(ctx, clientId) {
+
+        const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId]);
+
+        return await this.getRelationsArray(ctx, relationResultsIterator);
+    }
+
+    async getRelationByFi(ctx, fiId) {
+
+        const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [fiId]);
+
+        return await this.getRelationsArray(ctx, relationResultsIterator);
     }
 
     async queryAllData(ctx) {
