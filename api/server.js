@@ -5,4 +5,4 @@ const mongoURI = process.env.MONGODB_URI_DEV;
 
 InitiateMongoServer(mongoURI);
 
-app.listen(process.env.PORT || 5000);
+app.listen(process.env.PORT_API || 5000);
