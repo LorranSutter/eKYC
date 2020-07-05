@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Flex, Box, Card, Heading, Form, Field, Button, Radio } from 'rimble-ui';
+import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader } from 'rimble-ui';
 
 const Login = () => {
 
@@ -7,6 +7,8 @@ const Login = () => {
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
     const [radioValue, setRadioValue] = useState("client");
+    const [submitDisabled, setSubmitDisabled] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     function handleLogin(e) {
         setLogin(e.target.value);
@@ -25,23 +27,32 @@ const Login = () => {
             if (
                 login.length > 0 &&
                 password.length > 5 &&
-                radioValue.length > 0
+                radioValue.length > 0 &&
+                !isLoading
             ) {
                 setValidated(true);
+                setSubmitDisabled(false);
             } else {
                 setValidated(false);
+                setSubmitDisabled(true);
             }
         },
-        [login, password, radioValue]
+        [login, password, radioValue, isLoading]
     );
 
     useEffect(() => {
         validateForm();
     }, [validateForm]);
 
+    useEffect(() => {
+        if (validated && isLoading) {
+            console.log("Submitted valid form");
+        }
+    }, [validated, isLoading])
+
     const handleSubmit = e => {
         e.preventDefault();
-        console.log("Submitted valid form");
+        setIsLoading(true);
     };
 
     return (
@@ -95,7 +106,9 @@ const Login = () => {
                                 </Field>
                             </Box>
                         </Flex>
-                        <Button type="submit" disabled={!validated}>Login</Button>
+                        <Button type="submit" disabled={submitDisabled} width={1}>
+                            {isLoading ? <Loader color="white" /> : <p>Login</p>}
+                        </Button>
                     </Form>
                 </Card>
             </Box>
