@@ -36,23 +36,16 @@ class eKYC extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async getClientData(ctx, fields, clientId, fiId = null) {
-
-        if (fiId) {
-            const relations = await this.getRelationByFi(fiId);
-            if (!relations.includes(clientId)) {
-                return null;
-            }
-        }
+    async getClientData(ctx, clientId, fields) {
 
         const clientAsBytes = await ctx.stub.getState(clientId);
         if (!clientAsBytes || clientAsBytes.length === 0) {
             return null;
         }
 
-        const clientAsJson = JSON.parse(clientAsBytes.toString());
         if (fields) {
             fields = fields.split(',');
+            const clientAsJson = JSON.parse(clientAsBytes.toString());
 
             let result = {};
             for (const field of fields) {
@@ -62,17 +55,17 @@ class eKYC extends Contract {
             }
             return result;
         }
-        return clientAsJson;
+        return clientAsBytes;
     }
 
-    async getClientDataByFI(ctx, fields, clientId, fiId) {
+    async getClientDataByFI(ctx, fiId, clientId, fields) {
 
         const relations = await this.getRelationByFi(ctx, fiId);
         if (!relations.includes(clientId)) {
             return null;
         }
 
-        return await this.getClientData(ctx, fields, clientId);
+        return await this.getClientData(ctx, clientId, fields);
     }
 
     async getFinancialInstitutionData(ctx, fiId) {
@@ -91,9 +84,13 @@ class eKYC extends Contract {
             ...JSON.parse(clientData)
         };
 
-        await ctx.stub.putState('CLIENT' + this.nextClientId, Buffer.from(JSON.stringify(client)));
+        const newId = 'CLIENT' + this.nextClientId;
         this.nextClientId++;
+
+        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
         console.info('============= END : Create client ===========');
+
+        return newId;
     }
 
     async createFinancialInstitution(ctx, fiData) {
@@ -104,9 +101,13 @@ class eKYC extends Contract {
             ...JSON.parse(fiData)
         };
 
-        await ctx.stub.putState('FI' + this.nextFiId, Buffer.from(JSON.stringify(fi)));
+        const newId = 'FI' + this.nextFiId;
         this.nextFiId++;
+
+        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(fi)));
         console.info('============= END : Create financial institution ===========');
+
+        return newId;
     }
 
     async approve(ctx, clientId, fiId) {
