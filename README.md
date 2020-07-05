@@ -38,8 +38,7 @@ Here you can see the folder structure and the main files mentioned in this secti
     ┣ 📂test-network
     ┣ 📜.env
     ┣ 📜networkDown.sh
-    ┣ 📜startFabric.sh
-    ┗ 📜package.json
+    ┗ 📜startFabric.sh
 ```
 
 Open your terminal in the folder you want to clone the project in fabric-samples folder.
