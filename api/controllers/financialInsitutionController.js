@@ -26,7 +26,7 @@ exports.create = (req, res) => {
 
 exports.login = async (req, res) => {
 
-    const { login, password } = req.body;
+    const { login, password, userType } = req.body;
 
     if (!login || !password) {
         return res.status(401).json({ message: 'Invalid login/password' });
@@ -34,6 +34,10 @@ exports.login = async (req, res) => {
 
     const fi = await User.findOne({ login });
     if (!fi) {
+        return res.status(401).json({ message: 'Invalid login' });
+    }
+
+    if (fi.userType !== userType) {
         return res.status(401).json({ message: 'Invalid login' });
     }
 
@@ -49,11 +53,10 @@ exports.login = async (req, res) => {
 
 exports.getClientDataByFI = (req, res) => {
 
-    const { clientId, fields } = req.body;
+    const { clientId, fields } = req.query;
 
-    // TODO use cookies for ledgerId
     networkConnection
-        .evaluateTransaction('getClientDataByFI', [req.query.ledgerId, clientId, fields])
+        .evaluateTransaction('getClientDataByFI', [req.cookies.ledgerId, clientId, fields || []])
         .then(result => {
             if (result) {
                 if (result.length > 0) {

@@ -66,38 +66,50 @@ const Fi = () => {
         }
     }, []);
 
-    // useEffect(() => {
-    //     if (isLoading) {
-    //         try {
-    //             api
-    //                 .post(`/fi/getClientDataByFi`, { clientId, fields: [...clientFields] })
-    //                 .then(res => {
-    //                     if (res.status === 200) {
-    //                         console.log('approved');
-    //                         setClientId('');
-    //                         setAcquiredClientData(res);
-    //                         setApprovedClientList((approvedClientList) => [...approvedClientList, setClientId]);
-    //                     } else {
-    //                         console.log('Oopps... something wrong, status code ' + res.status);
-    //                         return function cleanup() { }
-    //                     }
-    //                 })
-    //                 .catch((err) => {
-    //                     console.log('Oopps... something wrong');
-    //                     console.log(err);
-    //                     return function cleanup() { }
-    //                 })
-    //                 .finally(() => {
-    //                     setIsLoading(false);
-    //                 });
-    //         } catch (error) {
-    //             console.log('Oopps... something wrong');
-    //             console.log(error);
-    //             setIsLoading(false);
-    //             return function cleanup() { }
-    //         }
-    //     }
-    // }, [isLoading, clientFields, clientId]);
+    useEffect(() => {
+        if (isLoading) {
+            try {
+                api
+                    .get(`/fi/getClientDataByFI`, {
+                        withCredentials: true,
+                        params: {
+                            clientId: clientId,
+                            fields: [...clientFields]
+                        }
+                    })
+                    .then(res => {
+                        if (res.status === 200) {
+                            let clientData = res.data.clientData;
+                            clientData = [
+                                { label: 'Name', value: clientData.name },
+                                { label: 'Address', value: clientData.address },
+                                { label: 'Date of Birth', value: clientData.dateOfBirth },
+                                { label: 'Id Number', value: clientData.idNumber }
+                            ];
+                            clientData = clientData.filter(item => item.value);
+                            setAcquiredClientData(clientData);
+                        } else {
+                            console.log('Oopps... something wrong, status code ' + res.status);
+                            return function cleanup() { }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log('Oopps... something wrong');
+                        console.log(err);
+                        return function cleanup() { }
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                        setClientId('');
+                    });
+            } catch (error) {
+                console.log('Oopps... something wrong');
+                console.log(error);
+                setIsLoading(false);
+                return function cleanup() { }
+            }
+        }
+    }, [isLoading, clientFields, clientId]);
 
     const handleSubmit = e => {
         e.preventDefault();

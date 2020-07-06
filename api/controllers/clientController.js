@@ -26,7 +26,7 @@ exports.create = (req, res) => {
 
 exports.login = async (req, res) => {
 
-    const { login, password } = req.body;
+    const { login, password, userType } = req.body;
 
     if (!login || !password) {
         return res.status(401).json({ message: 'Invalid login/password' });
@@ -34,6 +34,10 @@ exports.login = async (req, res) => {
 
     const client = await User.findOne({ login });
     if (!client) {
+        return res.status(401).json({ message: 'Invalid login' });
+    }
+
+    if(client.userType !== userType){
         return res.status(401).json({ message: 'Invalid login' });
     }
 

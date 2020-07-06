@@ -32,15 +32,18 @@ const Client = () => {
                 .then(axios.spread(
                     (clientData, approvedFis) => {
                         if (clientData.status === 200 && approvedFis.status === 200) {
-                            clientData = clientData.data.clientData;
                             approvedFis = approvedFis.data.approvedFis;
-                            setClientData([
+                            setApprovedFiList(approvedFis);
+                            
+                            clientData = clientData.data.clientData;
+                            clientData = [
                                 { label: 'Name', value: clientData.name },
                                 { label: 'Address', value: clientData.address },
                                 { label: 'Date of Birth', value: clientData.dateOfBirth },
                                 { label: 'Id Number', value: clientData.idNumber }
-                            ]);
-                            setApprovedFiList(approvedFis);
+                            ];
+                            clientData = clientData.filter(item => item.value);
+                            setClientData(clientData);
                         } else {
                             console.log('Oopps... something wrong, status code ' + clientData.status);
                             return function cleanup() { }

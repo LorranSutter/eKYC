@@ -13,7 +13,7 @@ const Login = () => {
     const [validated, setValidated] = useState(false);
     const [login, setLogin] = useState("");
     const [password, setPassword] = useState("");
-    const [radioValue, setRadioValue] = useState("client");
+    const [userType, setUserType] = useState("client");
     const [submitDisabled, setSubmitDisabled] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -26,7 +26,7 @@ const Login = () => {
     };
 
     function handleRadio(e) {
-        setRadioValue(e.target.value);
+        setUserType(e.target.value);
     };
 
     const validateForm = useCallback(
@@ -34,7 +34,7 @@ const Login = () => {
             if (
                 login.length > 0 &&
                 password.length > 5 &&
-                radioValue.length > 0 &&
+                userType.length > 0 &&
                 !isLoading
             ) {
                 setValidated(true);
@@ -44,7 +44,7 @@ const Login = () => {
                 setSubmitDisabled(true);
             }
         },
-        [login, password, radioValue, isLoading]
+        [login, password, userType, isLoading]
     );
 
     useEffect(() => {
@@ -53,15 +53,14 @@ const Login = () => {
 
     useEffect(() => {
         if (validated && isLoading) {
-            console.log("Submitted valid form");
             try {
                 api
-                    .post(`/${radioValue}/login`, { login, password })
+                    .post(`/${userType}/login`, { login, password, userType })
                     .then(res => {
                         if (res.status === 200) {
                             setCookie('userJWT', res.data.userJWT);
                             setCookie('ledgerId', res.data.ledgerId);
-                            history.push(`/${radioValue}`);
+                            history.push(`/${userType}`);
                         } else {
                             console.log('Oopps... something wrong, status code ' + res.status);
                             return function cleanup() { }
@@ -82,7 +81,7 @@ const Login = () => {
                 return function cleanup() { }
             }
         }
-    }, [login, password, radioValue, validated, isLoading, history, setCookie]);
+    }, [login, password, userType, validated, isLoading, history, setCookie]);
 
     const handleSubmit = e => {
         e.preventDefault();
@@ -127,14 +126,14 @@ const Login = () => {
                                         required
                                         my={2}
                                         value={"client"}
-                                        checked={radioValue === "client"}
+                                        checked={userType === "client"}
                                         onChange={handleRadio}
                                     />
                                     <Radio
                                         label="Financial Institution"
                                         my={2}
                                         value={"fi"}
-                                        checked={radioValue === "fi"}
+                                        checked={userType === "fi"}
                                         onChange={handleRadio}
                                     />
                                 </Field>
