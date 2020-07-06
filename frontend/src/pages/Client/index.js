@@ -4,6 +4,7 @@ import { Flex, Box, Card, Heading, Text, Form, Field, Button, Loader } from 'rim
 import axios from 'axios';
 
 import api from '../../service/api';
+import UserData from '../../components/UserData';
 
 const Client = () => {
 
@@ -94,18 +95,7 @@ const Client = () => {
             <Box mx={'auto'} mt={50} width={10 / 12}>
                 <Card>
                     <Heading as={'h2'}>Client data</Heading>
-                    <Box bg={'#f1f1f1'} p={3} borderRadius={1}>
-                        {clientData.map((item, key) => (
-                            <Flex my={1} key={key}>
-                                <Box width={[1, 1 / 2, 1 / 3, 1 / 6]}>
-                                    <Heading as={'h4'} my={'auto'}>{item.label}</Heading>
-                                </Box>
-                                <Box width={1}>
-                                    <Text>{item.value}</Text>
-                                </Box>
-                            </Flex>
-                        ))}
-                    </Box>
+                    <UserData userData={clientData}/>
                 </Card>
                 <Card mt={20}>
                     <Flex my={1}>
