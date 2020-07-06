@@ -7,6 +7,7 @@ import axios from 'axios';
 
 import api from '../../service/api';
 import UserData from '../../components/UserData';
+import { setUserData } from '../../functions/setUserData';
 
 const Fi = () => {
 
@@ -79,15 +80,7 @@ const Fi = () => {
                     })
                     .then(res => {
                         if (res.status === 200) {
-                            let clientData = res.data.clientData;
-                            clientData = [
-                                { label: 'Name', value: clientData.name },
-                                { label: 'Address', value: clientData.address },
-                                { label: 'Date of Birth', value: clientData.dateOfBirth },
-                                { label: 'Id Number', value: clientData.idNumber }
-                            ];
-                            clientData = clientData.filter(item => item.value);
-                            setAcquiredClientData(clientData);
+                            setUserData(res.data.clientData, setAcquiredClientData);
                         } else {
                             console.log('Oopps... something wrong, status code ' + res.status);
                             return function cleanup() { }
@@ -196,3 +189,5 @@ const Fi = () => {
 }
 
 export default Fi;
+
+

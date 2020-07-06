@@ -7,6 +7,7 @@ import axios from 'axios';
 
 import api from '../../service/api';
 import UserData from '../../components/UserData';
+import { setUserData } from '../../functions/setUserData';
 
 const Client = () => {
 
@@ -34,16 +35,7 @@ const Client = () => {
                         if (clientData.status === 200 && approvedFis.status === 200) {
                             approvedFis = approvedFis.data.approvedFis;
                             setApprovedFiList(approvedFis);
-                            
-                            clientData = clientData.data.clientData;
-                            clientData = [
-                                { label: 'Name', value: clientData.name },
-                                { label: 'Address', value: clientData.address },
-                                { label: 'Date of Birth', value: clientData.dateOfBirth },
-                                { label: 'Id Number', value: clientData.idNumber }
-                            ];
-                            clientData = clientData.filter(item => item.value);
-                            setClientData(clientData);
+                            setUserData(clientData.data.clientData, setClientData);
                         } else {
                             console.log('Oopps... something wrong, status code ' + clientData.status);
                             return function cleanup() { }
