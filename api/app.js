@@ -28,7 +28,7 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/client', clientRouter);
-app.use('/financialInstitution', financialInstitutionRouter);
+app.use('/fi', financialInstitutionRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

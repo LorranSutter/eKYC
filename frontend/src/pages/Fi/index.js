@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 import { Flex, Box, Card, Heading, Form, Text, Button, Loader } from 'rimble-ui';
 
 import axios from 'axios';
@@ -7,6 +9,9 @@ import api from '../../service/api';
 import UserData from '../../components/UserData';
 
 const Fi = () => {
+
+    const history = useHistory();
+    const [cookies, setCookie, removeCookie] = useCookies();
 
     const [approvedClientList, setApprovedClientList] = useState(['CLIENT0', 'CLIENT1', 'CLIENT2']);
     const [clientId, setClientId] = useState('');
@@ -98,9 +103,23 @@ const Fi = () => {
         setIsLoading(true);
     };
 
+    function handleClickLogout() {
+        removeCookie('userJWT');
+        removeCookie('ledgerId');
+        history.push('/login');
+    }
+
     return (
         <Flex minWidth={380}>
-            <Box mx={'auto'} mt={50} width={10 / 12}>
+            <Box mx={'auto'} width={10 / 12}>
+                <Flex px={2} mx={'auto'} justifyContent='space-between'>
+                    <Box my={'auto'}>
+                        <Heading as={'h1'} color='primary'>eKYC</Heading>
+                    </Box>
+                    <Box my={'auto'}>
+                        <Button onClick={handleClickLogout}>Logout</Button>
+                    </Box>
+                </Flex>
                 <Card>
                     <Heading as={'h2'}>Financial institution data</Heading>
                     <UserData userData={fiData} />
