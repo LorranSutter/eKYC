@@ -1,7 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader } from 'rimble-ui';
 
+import api from '../../service/api';
+
 const Login = () => {
+
+    const history = useHistory();
+    const [cookies, setCookie] = useCookies();
 
     const [validated, setValidated] = useState(false);
     const [login, setLogin] = useState("");
@@ -47,8 +54,35 @@ const Login = () => {
     useEffect(() => {
         if (validated && isLoading) {
             console.log("Submitted valid form");
+            try {
+                api
+                    .post(`/${radioValue}/login`, { login, password })
+                    .then(res => {
+                        if (res.status === 200) {
+                            setCookie('userJWT', res.data.userJWT);
+                            setCookie('ledgerId', res.data.ledgerId);
+                            history.push(`/${radioValue}`);
+                        } else {
+                            console.log('Oopps... something wrong, status code ' + res.status);
+                            return function cleanup() { }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log('Oopps... something wrong');
+                        console.log(err);
+                        return function cleanup() { }
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                    });
+            } catch (error) {
+                console.log('Oopps... something wrong');
+                console.log(error);
+                setIsLoading(false);
+                return function cleanup() { }
+            }
         }
-    }, [validated, isLoading])
+    }, [login, password, radioValue, validated, isLoading, history, setCookie]);
 
     const handleSubmit = e => {
         e.preventDefault();
