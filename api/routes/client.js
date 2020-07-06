@@ -10,10 +10,10 @@ router.post('/create', clientValidator.registration, validate, clientController.
 
 router.post('/login', clientValidator.login, validate, clientController.login);
 
-router.post('/getClientData', checkLogin, clientController.getClientData);
+router.get('/getClientData', checkLogin, clientController.getClientData);
 
 router.post('/approve', checkLogin, clientController.approve);
 
-router.post('/getApprovedFis', checkLogin, clientController.getApprovedFis);
+router.get('/getApprovedFis', checkLogin, clientController.getApprovedFis);
 
 module.exports = router;

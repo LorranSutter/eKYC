@@ -70,12 +70,29 @@ exports.getClientDataByFI = (req, res) => {
 
 exports.getApprovedClients = async (req, res) => {
     networkConnection
-        .evaluateTransaction('getRelationByFi', [req.query.ledgerId])
+        .evaluateTransaction('getRelationByFi', [req.cookies.ledgerId])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
                     return res.json({ approvedClients: JSON.parse(result.toString()) });
                 }
+            }
+            return res.status(500).json({ error: 'Something went wrong' });
+        })
+        .catch((err) => {
+            return res.status(500).json({ error: `Something went wrong\n ${err}` });
+        });
+};
+
+exports.getFiData = (req, res) => {
+    networkConnection
+        .evaluateTransaction('getFinancialInstitutionData', [req.cookies.ledgerId])
+        .then(result => {
+            if (result) {
+                if (result.length > 0) {
+                    return res.json({ fiData: JSON.parse(result.toString()) });
+                }
+                return res.json({ fiData: result.toString() });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })

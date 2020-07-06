@@ -49,15 +49,17 @@ exports.login = async (req, res) => {
 
 exports.getClientData = (req, res) => {
 
-    const fields = req.body.fields;
+    const fields = req.body.fields || [];
 
-    // TODO use cookies for ledgerId
     networkConnection
-        .evaluateTransaction('getClientData', [req.query.ledgerId, fields])
+        .evaluateTransaction('getClientData', [req.cookies.ledgerId, fields])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
-                    return res.json({ clientData: JSON.parse(result.toString()) });
+                    // FIXME Figure out a better way to parse client data
+                    let data = JSON.parse(result.toString()).data;
+                    data = JSON.parse(Buffer.from(data));
+                    return res.json({ clientData: data });
                 }
                 return res.json({ clientData: result.toString() });
             }
@@ -88,7 +90,7 @@ exports.approve = async (req, res) => {
 
 exports.getApprovedFis = async (req, res) => {
     networkConnection
-        .evaluateTransaction('getRelationByClient', [req.query.ledgerId])
+        .evaluateTransaction('getRelationByClient', [req.cookies.ledgerId])
         .then(result => {
             if (result) {
                 if (result.length > 0) {

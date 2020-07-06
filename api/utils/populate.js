@@ -17,10 +17,10 @@ function saveUser(user, cb) {
     let currentLogin, currentUserType;
 
     if (user.Key.match(/^CLIENT\d+$/)) {
-        currentLogin = user.Record.name;
+        currentLogin = user.Record.name.replace(/ /g,'');
         currentUserType = 'client';
     } else if (user.Key.match(/^FI\d+$/)) {
-        currentLogin = user.Record.name;
+        currentLogin = user.Record.name.replace(/ /g,'');
         currentUserType = 'fi';
     } else {
         console.log(`Oooppss... this user is non-standard ${user}`);
