@@ -1,0 +1,167 @@
+import React, { useState, useCallback, useEffect } from 'react';
+import { Flex, Box, Card, Heading, Form, Text, Button, Loader } from 'rimble-ui';
+
+import axios from 'axios';
+
+import api from '../../service/api';
+import UserData from '../../components/UserData';
+
+const Fi = () => {
+
+    const [approvedClientList, setApprovedClientList] = useState(['CLIENT0', 'CLIENT1', 'CLIENT2']);
+    const [clientId, setClientId] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [clientFields, setClientFields] = useState(new Set());
+    const [acquiredClientData, setAcquiredClientData] = useState({});
+    const [fiData, setFiData] = useState([
+        { label: 'Name', value: 'name' },
+        { label: 'Id Number', value: 'id number' }
+    ]);
+
+    function handleChooseClient(e) {
+        setClientId(e.target.value.toUpperCase());
+    };
+
+    const handleClientFields = useCallback((e) => {
+        const field = e.target.value;
+        if (e.target.checked) {
+            setClientFields((clientFields) => clientFields.add(field));
+        } else {
+            setClientFields((clientFields) => new Set([...clientFields].filter(item => item !== field)));
+        }
+    }, []);
+
+    // useEffect(() => {
+    //     try {
+    //         axios.all([
+    //             api.get(`/fi/getFiData`, { withCredentials: true }),
+    //             api.get(`/fi/getApprovedClients`, { withCredentials: true })
+    //         ])
+    //             .then(axios.spread(
+    //                 (fiData, approvedClients) => {
+    //                     if (fiData.status === 200) {
+    //                         console.log('Data got!');
+    //                         setFiData(fiData);
+    //                         setApprovedClientList(approvedClients);
+    //                     } else {
+    //                         console.log('Oopps... something wrong, status code ' + fiData.status);
+    //                         return function cleanup() { }
+    //                     }
+    //                 }))
+    //             .catch((err) => {
+    //                 console.log('Oopps... something wrong');
+    //                 console.log(err);
+    //                 return function cleanup() { }
+    //             });
+    //     } catch (error) {
+    //         console.log('Oopps... something wrong');
+    //         console.log(error);
+    //         return function cleanup() { }
+    //     }
+    // }, []);
+
+    // useEffect(() => {
+    //     if (isLoading) {
+    //         try {
+    //             api
+    //                 .post(`/fi/getClientDataByFi`, { clientId, fields: [...clientFields] })
+    //                 .then(res => {
+    //                     if (res.status === 200) {
+    //                         console.log('approved');
+    //                         setClientId('');
+    //                         setAcquiredClientData(res);
+    //                         setApprovedClientList((approvedClientList) => [...approvedClientList, setClientId]);
+    //                     } else {
+    //                         console.log('Oopps... something wrong, status code ' + res.status);
+    //                         return function cleanup() { }
+    //                     }
+    //                 })
+    //                 .catch((err) => {
+    //                     console.log('Oopps... something wrong');
+    //                     console.log(err);
+    //                     return function cleanup() { }
+    //                 })
+    //                 .finally(() => {
+    //                     setIsLoading(false);
+    //                 });
+    //         } catch (error) {
+    //             console.log('Oopps... something wrong');
+    //             console.log(error);
+    //             setIsLoading(false);
+    //             return function cleanup() { }
+    //         }
+    //     }
+    // }, [isLoading, clientFields, clientId]);
+
+    const handleSubmit = e => {
+        e.preventDefault();
+        setIsLoading(true);
+    };
+
+    return (
+        <Flex minWidth={380}>
+            <Box mx={'auto'} mt={50} width={10 / 12}>
+                <Card>
+                    <Heading as={'h2'}>Financial institution data</Heading>
+                    <UserData userData={fiData} />
+                </Card>
+                <Card mt={20}>
+                    <Flex my={1}>
+                        <Box ml={10} my={1}>
+                            {approvedClientList.length > 0 ?
+                                <Heading as={'h3'} my={'auto'}>Your approved clients:</Heading>
+                                :
+                                <Heading as={'h3'} my={'auto'}>You have no approved clients</Heading>
+                            }
+                        </Box>
+                        <Box ml={10} my={1}>
+                            {approvedClientList.join(', ')}
+                        </Box>
+                    </Flex>
+                </Card>
+                <Card mt={20}>
+                    <Heading as={'h2'}>Get client data</Heading>
+                    <Form onSubmit={handleSubmit}>
+                        <Flex mx={-3}>
+                            <Box width={1} px={3}>
+                                <Form.Field label="Client ID" width={1}>
+                                    <Form.Input
+                                        type="text"
+                                        required
+                                        onChange={handleChooseClient}
+                                        value={clientId}
+                                        width={1}
+                                    />
+                                </Form.Field>
+                                <Box mb={2}>
+                                    <Text mb={2} fontWeight={600} fontSize={'14px'}>What data do you want?</Text>
+                                    <Form.Check label="Name" value="name" onChange={handleClientFields} />
+                                    <Form.Check label="Address" value="address" onChange={handleClientFields} />
+                                    <Form.Check label="Date of Birth" value="dateOfBirth" onChange={handleClientFields} />
+                                    <Form.Check label="Id Number" value="idNumber" onChange={handleClientFields} />
+                                </Box>
+                            </Box>
+                        </Flex>
+                        <Flex mx={-3}>
+                            <Box px={3}>
+                                <Button type="submit" disabled={isLoading}>
+                                    {isLoading ? <Loader color="white" /> : <p>Submit</p>}
+                                </Button>
+                            </Box>
+                        </Flex>
+                    </Form>
+                </Card>
+                {acquiredClientData.length > 0 &&
+                    <Box mx={'auto'} mt={20}>
+                        <Card>
+                            <Heading as={'h2'}>Acquired client data</Heading>
+                            <UserData userData={acquiredClientData} />
+                        </Card>
+                    </Box>
+                }
+            </Box>
+        </Flex>
+    );
+}
+
+export default Fi;
