@@ -12,4 +12,6 @@ router.post('/login', fiValidator.login, validate, financialInsitutionController
 
 router.post('/getClientDataByFI', checkLogin, financialInsitutionController.getClientDataByFI);
 
+router.post('/getApprovedClients', checkLogin, financialInsitutionController.getApprovedClients);
+
 module.exports = router;
