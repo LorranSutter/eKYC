@@ -130,7 +130,6 @@ const Fi = () => {
                                         required
                                         onChange={handleChooseClient}
                                         value={clientId}
-                                        width={1}
                                     />
                                 </Form.Field>
                                 <Box mb={2}>
