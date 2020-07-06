@@ -15,7 +15,7 @@ const Client = () => {
 
     const [approvedFiList, setApprovedFiList] = useState([]);
     const [fiId, setFiId] = useState('');
-    const [newApprovedFi, setNewApprovedFi] = useState(false);
+    const [approvedMsg, setApprovedMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [clientData, setClientData] = useState([]);
 
@@ -58,42 +58,46 @@ const Client = () => {
         }
     }, []);
 
-    // useEffect(() => {
-    //     if (isLoading) {
-    //         try {
-    //             api
-    //                 .post(`/client/approve`, { fiId })
-    //                 .then(res => {
-    //                     if (res.status === 200) {
-    //                         console.log('approved');
-    //                         setFiId('');
-    //                         setNewApprovedFi(true);
-    //                         setApprovedFiList((approvedFiList) => [...approvedFiList, fiId]);
-    //                     } else {
-    //                         console.log('Oopps... something wrong, status code ' + res.status);
-    //                         return function cleanup() { }
-    //                     }
-    //                 })
-    //                 .catch((err) => {
-    //                     console.log('Oopps... something wrong');
-    //                     console.log(err);
-    //                     return function cleanup() { }
-    //                 })
-    //                 .finally(() => {
-    //                     setIsLoading(false);
-    //                 });
-    //         } catch (error) {
-    //             console.log('Oopps... something wrong');
-    //             console.log(error);
-    //             setIsLoading(false);
-    //             return function cleanup() { }
-    //         }
-    //     }
-    // }, [isLoading, fiId]);
+    useEffect(() => {
+        if (isLoading) {
+            try {
+                api
+                    .get(`/client/approve?fiId=${fiId}`, { withCredentials: true })
+                    .then(res => {
+                        if (res.status === 200) {
+                            setApprovedMsg(res.data.message);
+                            const timer = setTimeout(() => {
+                                setApprovedMsg('');
+                            }, 3000);
+                            setApprovedFiList((approvedFiList) => Array.from(new Set([...approvedFiList, fiId])));
+                            return () => clearTimeout(timer);
+                        } else {
+                            console.log('Oopps... something wrong, status code ' + res.status);
+                            return function cleanup() { }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log('Oopps... something wrong');
+                        console.log(err);
+                        return function cleanup() { }
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                        setFiId('');
+                    });
+            } catch (error) {
+                console.log('Oopps... something wrong');
+                console.log(error);
+                setIsLoading(false);
+                return function cleanup() { }
+            }
+        }
+    }, [isLoading, fiId]);
 
     const handleSubmit = e => {
         e.preventDefault();
         setIsLoading(true);
+        setApprovedMsg('');
     };
 
     function handleClickLogout() {
@@ -153,9 +157,9 @@ const Client = () => {
                                     {isLoading ? <Loader color="white" /> : <p>Approve</p>}
                                 </Button>
                             </Box>
-                            {newApprovedFi &&
+                            {approvedMsg &&
                                 <Box px={3}>
-                                    <Text>Approved!</Text>
+                                    <Text>{approvedMsg}</Text>
                                 </Box>
                             }
                         </Flex>

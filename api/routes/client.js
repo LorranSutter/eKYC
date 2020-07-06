@@ -12,7 +12,7 @@ router.post('/login', clientValidator.login, validate, clientController.login);
 
 router.get('/getClientData', checkLogin, clientController.getClientData);
 
-router.post('/approve', checkLogin, clientController.approve);
+router.get('/approve', checkLogin, clientController.approve);
 
 router.get('/getApprovedFis', checkLogin, clientController.getApprovedFis);
 

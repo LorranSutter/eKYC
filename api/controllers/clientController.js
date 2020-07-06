@@ -71,15 +71,11 @@ exports.getClientData = (req, res) => {
 };
 
 exports.approve = async (req, res) => {
-
-    const { fiId } = req.body;
-
-    // TODO use cookies for ledgerId
     networkConnection
-        .submitTransaction('approve', [req.query.ledgerId, fiId])
+        .submitTransaction('approve', [req.cookies.ledgerId, req.query.fiId])
         .then(result => {
             if (result) {
-                return res.json({ message: `Financial Institution ${fiId} approved by ${req.query.ledgerId}` });
+                return res.json({ message: `Financial Institution ${req.query.fiId} approved by ${req.cookies.ledgerId}` });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
