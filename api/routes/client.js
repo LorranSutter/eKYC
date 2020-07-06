@@ -14,4 +14,6 @@ router.post('/getClientData', checkLogin, clientController.getClientData);
 
 router.post('/approve', checkLogin, clientController.approve);
 
+router.post('/getApprovedFis', checkLogin, clientController.getApprovedFis);
+
 module.exports = router;

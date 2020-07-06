@@ -67,3 +67,19 @@ exports.getClientDataByFI = (req, res) => {
             return res.status(500).json({ error: `Something went wrong\n ${err}` });
         });
 };
+
+exports.getApprovedClients = async (req, res) => {
+    networkConnection
+        .evaluateTransaction('getRelationByFi', [req.query.ledgerId])
+        .then(result => {
+            if (result) {
+                if (result.length > 0) {
+                    return res.json({ approvedClients: JSON.parse(result.toString()) });
+                }
+            }
+            return res.status(500).json({ error: 'Something went wrong' });
+        })
+        .catch((err) => {
+            return res.status(500).json({ error: `Something went wrong\n ${err}` });
+        });
+};
