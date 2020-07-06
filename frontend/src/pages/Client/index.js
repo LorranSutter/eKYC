@@ -13,49 +13,50 @@ const Client = () => {
     const history = useHistory();
     const [cookies, setCookie, removeCookie] = useCookies();
 
-    const [approvedFiList, setApprovedFiList] = useState(['FI0', 'FI1', 'FI2']);
+    const [approvedFiList, setApprovedFiList] = useState([]);
     const [fiId, setFiId] = useState('');
     const [newApprovedFi, setNewApprovedFi] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [clientData, setClientData] = useState([
-        { label: 'Name', value: 'name' },
-        { label: 'Address', value: 'address' },
-        { label: 'Date of Birth', value: 'date of birth' },
-        { label: 'Id Number', value: 'id number' }
-    ]);
+    const [clientData, setClientData] = useState([]);
 
     function handleChooseFi(e) {
         setFiId(e.target.value.toUpperCase());
     };
 
-    // useEffect(() => {
-    //     try {
-    //         axios.all([
-    //             api.get(`/client/getClientData`, { withCredentials: true }),
-    //             api.get(`/client/getApprovedFis`, { withCredentials: true })
-    //         ])
-    //             .then(axios.spread(
-    //                 (clientData, approvedFis) => {
-    //                     if (clientData.status === 200) {
-    //                         console.log('Data got!');
-    //                         setClientData(clientData);
-    //                         setApprovedFiList(approvedFis);
-    //                     } else {
-    //                         console.log('Oopps... something wrong, status code ' + clientData.status);
-    //                         return function cleanup() { }
-    //                     }
-    //                 }))
-    //             .catch((err) => {
-    //                 console.log('Oopps... something wrong');
-    //                 console.log(err);
-    //                 return function cleanup() { }
-    //             });
-    //     } catch (error) {
-    //         console.log('Oopps... something wrong');
-    //         console.log(error);
-    //         return function cleanup() { }
-    //     }
-    // }, []);
+    useEffect(() => {
+        try {
+            axios.all([
+                api.get('/client/getClientData', { withCredentials: true }),
+                api.get('/client/getApprovedFis', { withCredentials: true })
+            ])
+                .then(axios.spread(
+                    (clientData, approvedFis) => {
+                        if (clientData.status === 200 && approvedFis.status === 200) {
+                            clientData = clientData.data.clientData;
+                            approvedFis = approvedFis.data.approvedFis;
+                            setClientData([
+                                { label: 'Name', value: clientData.name },
+                                { label: 'Address', value: clientData.address },
+                                { label: 'Date of Birth', value: clientData.dateOfBirth },
+                                { label: 'Id Number', value: clientData.idNumber }
+                            ]);
+                            setApprovedFiList(approvedFis);
+                        } else {
+                            console.log('Oopps... something wrong, status code ' + clientData.status);
+                            return function cleanup() { }
+                        }
+                    }))
+                .catch((err) => {
+                    console.log('Oopps... something wrong');
+                    console.log(err);
+                    return function cleanup() { }
+                });
+        } catch (error) {
+            console.log('Oopps... something wrong');
+            console.log(error);
+            return function cleanup() { }
+        }
+    }, []);
 
     // useEffect(() => {
     //     if (isLoading) {

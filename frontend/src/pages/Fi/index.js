@@ -13,15 +13,12 @@ const Fi = () => {
     const history = useHistory();
     const [cookies, setCookie, removeCookie] = useCookies();
 
-    const [approvedClientList, setApprovedClientList] = useState(['CLIENT0', 'CLIENT1', 'CLIENT2']);
+    const [approvedClientList, setApprovedClientList] = useState([]);
     const [clientId, setClientId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [clientFields, setClientFields] = useState(new Set());
     const [acquiredClientData, setAcquiredClientData] = useState({});
-    const [fiData, setFiData] = useState([
-        { label: 'Name', value: 'name' },
-        { label: 'Id Number', value: 'id number' }
-    ]);
+    const [fiData, setFiData] = useState([]);
 
     function handleChooseClient(e) {
         setClientId(e.target.value.toUpperCase());
@@ -36,34 +33,38 @@ const Fi = () => {
         }
     }, []);
 
-    // useEffect(() => {
-    //     try {
-    //         axios.all([
-    //             api.get(`/fi/getFiData`, { withCredentials: true }),
-    //             api.get(`/fi/getApprovedClients`, { withCredentials: true })
-    //         ])
-    //             .then(axios.spread(
-    //                 (fiData, approvedClients) => {
-    //                     if (fiData.status === 200) {
-    //                         console.log('Data got!');
-    //                         setFiData(fiData);
-    //                         setApprovedClientList(approvedClients);
-    //                     } else {
-    //                         console.log('Oopps... something wrong, status code ' + fiData.status);
-    //                         return function cleanup() { }
-    //                     }
-    //                 }))
-    //             .catch((err) => {
-    //                 console.log('Oopps... something wrong');
-    //                 console.log(err);
-    //                 return function cleanup() { }
-    //             });
-    //     } catch (error) {
-    //         console.log('Oopps... something wrong');
-    //         console.log(error);
-    //         return function cleanup() { }
-    //     }
-    // }, []);
+    useEffect(() => {
+        try {
+            axios.all([
+                api.get('/fi/getFiData', { withCredentials: true }),
+                api.get('/fi/getApprovedClients', { withCredentials: true })
+            ])
+                .then(axios.spread(
+                    (fiData, approvedClients) => {
+                        if (fiData.status === 200 && approvedClients.status === 200) {
+                            fiData = fiData.data.fiData;
+                            approvedClients = approvedClients.data.approvedClients
+                            setFiData([
+                                { label: 'Name', value: fiData.name },
+                                { label: 'Id Number', value: fiData.idNumber }
+                            ]);
+                            setApprovedClientList(approvedClients);
+                        } else {
+                            console.log('Oopps... something wrong, status code ' + fiData.status);
+                            return function cleanup() { }
+                        }
+                    }))
+                .catch((err) => {
+                    console.log('Oopps... something wrong');
+                    console.log(err);
+                    return function cleanup() { }
+                });
+        } catch (error) {
+            console.log('Oopps... something wrong');
+            console.log(error);
+            return function cleanup() { }
+        }
+    }, []);
 
     // useEffect(() => {
     //     if (isLoading) {
