@@ -40,13 +40,16 @@ Here you can see the folder structure and the main files mentioned in this secti
  ┣ 📂bin
  ┣ 📂config
  ┗ 📂eKYC
-    ┣ 📂api
-    ┣ 📂chaincode
-    ┣ 📂frontend
-    ┣ 📂test-network
-    ┣ 📜.env
-    ┣ 📜networkDown.sh
-    ┗ 📜setUp.sh
+   ┣ 📂api
+   ┣ 📂chaincode
+   ┣ 📂frontend
+      ┗ 📂src
+         ┗ 📂service
+            ┗ 📜baseURL.json
+   ┣ 📂test-network
+   ┣ 📜.env
+   ┣ 📜networkDown.sh
+   ┗ 📜setUp.sh
 ```
 
 Open your terminal in the fabric-samples folder and clone the project.
@@ -100,6 +103,19 @@ cd frontend
 
 # Install dependencies
 npm install
+```
+
+In order to connect frontend to the API, you will have to provide the base URL of the API in the following file:
+
+```sh
+## In the second terminal ##
+
+# Go to the baseURL.json file
+cd src/service/baseURL.json
+
+{
+    "baseURL": "http://35.193.245.108:5000"
+}
 ```
 
 Now you can start the network and perform all necessary set up running the following magic script:

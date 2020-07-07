@@ -7,7 +7,6 @@ const createError = require('http-errors');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 
-const indexRouter = require('./routes/index');
 const clientRouter = require('./routes/client');
 const financialInstitutionRouter = require('./routes/financialInstitution');
 
@@ -26,7 +25,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/', indexRouter);
 app.use('/client', clientRouter);
 app.use('/fi', financialInstitutionRouter);
 
