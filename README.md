@@ -23,6 +23,14 @@
 
 ## :runner: How to run
 
+This project was developed using a [Google Cloud Platform](https://cloud.google.com/) virtual machine, so every step must be performed in a VM CLI under a _sudo -s_ command.
+
+Start your VM and save the highlighted External IP:
+
+<p align="center">
+   <img src="https://res.cloudinary.com/lorransutter/image/upload/v1594076924/eKYC/VM.png"/>
+</p>
+
 You must have [Fabric samples](https://github.com/hyperledger/fabric-samples) to run this project. You will clone this project inside fabric-samples folder so as to this can use the files from bin and config folders.
 
 Here you can see the folder structure and the main files mentioned in this section:
@@ -38,10 +46,10 @@ Here you can see the folder structure and the main files mentioned in this secti
     ┣ 📂test-network
     ┣ 📜.env
     ┣ 📜networkDown.sh
-    ┗ 📜startFabric.sh
+    ┗ 📜setUp.sh
 ```
 
-Open your terminal in the folder you want to clone the project in fabric-samples folder.
+Open your terminal in the fabric-samples folder and clone the project.
 
 ``` sh
 # Clone this repo
@@ -61,62 +69,60 @@ PRIVATE_KEY="YOUR_STRONG_PRIVATE_KEY"
 MONGODB_URI_DEV="YOUR_DEV_MONGO_URI"
 ```
 
-<!-- Now you will need three opened terminals to run the project. One for truffle to simulate the EVM, another one for the server and a third one for the frontend.
+Now you will need two opened terminals to run the project. One for the API and another one for the frontend.
 
-Truffle will run on http://127.0.0.1:9545/
+API will run on http://35.193.245.108:5000/
 
-Server will run on http://localhost:5000/
-
-Frontend will run on http://localhost:3000/ -->
-
-<!-- 
+Frontend will run on http://35.193.245.108:3000/
 
 ``` sh
 
 ## In the first terminal ##
 
-# Go to smart contract folder
-cd smart_contract
+# Go to the chaincode folder
+cd chaincode
 
-# Init truffle
-truffle develop
+# Install dependencies
+npm install
 
-# Run migrations
-migrate
-```
-
-The previous command will generate a new ABI and write contract address in a JSON file. You do not have to worry about importing these info in the backend though. Also you may change the smart contract and run migrations again to see your changes.
-
-If you change your contract, you will have to run migrations again. Just type the following command:
-
-``` sh
-# Run migrations again
-migrate --reset
-```
-
-Install backend dependencies:
-
-``` sh
-
-## In the other terminal ##
-
-# Go to backend application
-cd backend
+# Go to the API application
+cd ../api
 
 # Install dependencies
 npm install
 ```
 
-To kick-start application data, you can run _populate_ script, which will write basic data in truffle develop blockchain environment and database:
-
 ``` sh
-npm run populate
+## In the second terminal ##
+
+# Go to the frontend application
+cd frontend
+
+# Install dependencies
+npm install
 ```
 
-Run the backedn application:
+Now you can start the network and perform all necessary set up running the following magic script:
 
 ``` sh
-# Run backend application
+## In the first terminal ##
+
+# Go to the root
+cd ..
+
+# Run the set up script
+./setUp.sh
+```
+
+Run the API application:
+
+``` sh
+## In the first terminal ##
+
+# Go to the API application
+cd api
+
+# Run API application
 npm run start
 
 # Or to use nodemon
@@ -126,46 +132,28 @@ npm run dev
 Finally run the frontend application:
 
 ``` sh
-
-## In the third terminal ##
-
-# Go to frontend application
-cd frontend
-
-# Install dependencies
-npm install
+## In the second terminal ##
 
 # Run the project
-npm run start
+npm start
 ```
 
-#### Login credentials
+If you want to stop the network and delete all artifacts created, just run the next magic script below:
+
+``` sh
+## In the first terminal ##
+
+# Go to the root
+cd ..
+
+# Run the script
+./networkDown.sh
+```
+
+<!-- #### Login credentials
 
 * username: distributor
-* password: 123456
-
-### :syringe: Tests
-
-Both Smart Contract and backend application have its own tests suite. To run the tests execute the following commands: -->
-
-<!-- ```sh
-
-# Smart Contracts folder
-
-cd smart_contracts
-
-# Run tests
-
-truffle test
-
-# Backend folder
-
-cd backend
-
-# Run tests
-
-npm run test
-``` -->
+* password: 123456 -->
 
 ## :book: Resources and technologies :computer:
 
@@ -173,6 +161,7 @@ npm run test
 
    - [Fabric samples](https://github.com/hyperledger/fabric-samples) - get started samples for Hyperledger Fabric
    - [Fabric contract API](https://www.npmjs.com/package/fabric-contract-api) - contract interface to implement smart contracts
+   - [ESlint](https://eslint.org/) - pluggable JS linter
 
 2. API
 
@@ -189,7 +178,7 @@ npm run test
 
 3. Frontend
 
-   <!-- - [Rimble](https://rimble.consensys.design/) - design system -->
+   - [Rimble](https://rimble.consensys.design/) - design system
    - [ReactJS](https://reactjs.org/) - frontend library
    - [React router dom](https://www.npmjs.com/package/react-router-dom) - routing and navigation for react apps
    - [React-cookie](https://www.npmjs.com/package/react-cookie) - cookie interaction for React applications
