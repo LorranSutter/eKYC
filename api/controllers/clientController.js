@@ -76,7 +76,7 @@ exports.getClientData = (req, res) => {
 
 exports.approve = async (req, res) => {
     networkConnection
-        .submitTransaction('approve', [req.cookies.ledgerId, req.query.fiId])
+        .submitTransaction('approve', [req.query.ledgerId, req.query.fiId])
         .then(result => {
             if (result) {
                 return res.json({ message: `Financial Institution ${req.query.fiId} approved by ${req.cookies.ledgerId}` });
@@ -90,12 +90,44 @@ exports.approve = async (req, res) => {
 
 exports.getApprovedFis = async (req, res) => {
     networkConnection
-        .evaluateTransaction('getRelationByClient', [req.cookies.ledgerId])
+        .evaluateTransaction('getRelationByClient', [req.query.ledgerId])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
                     return res.json({ approvedFis: JSON.parse(result.toString()) });
                 }
+            }
+            return res.status(500).json({ error: 'Something went wrong' });
+        })
+        .catch((err) => {
+            return res.status(500).json({ error: `Something went wrong\n ${err}` });
+        });
+};
+
+// exports.getApprovedFis2 = async (req, res) => {
+//     networkConnection
+//         .evaluateTransaction('getRelationByClient2', [req.body.clientId, req.body.fiId])
+//         .then(result => {
+//             if (result) {
+//                 if (result.length > 0) {
+//                     return res.json({ approvedFis: JSON.parse(result.toString()) });
+//                 }
+//             }
+//             return res.status(500).json({ error: 'Something went wrong' });
+//         })
+//         .catch((err) => {
+//             return res.status(500).json({ error: `Something went wrong\n ${err}` });
+//         });
+// };
+
+exports.remove = async (req, res) => {
+    networkConnection
+        .submitTransaction('remove', [req.query.ledgerId, req.query.fiId])
+        .then(result => {
+            console.log(result);
+            if (result) {
+                console.log(result);
+                return res.json({ message: `Financial Institution ${req.query.fiId} removed by ${req.query.ledgerId}` });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })

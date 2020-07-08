@@ -12,8 +12,12 @@ router.post('/login', clientValidator.login, validate, clientController.login);
 
 router.get('/getClientData', checkLogin, clientController.getClientData);
 
-router.get('/approve', checkLogin, clientController.approve);
+// router.get('/approve', clientController.approve);
 
-router.get('/getApprovedFis', checkLogin, clientController.getApprovedFis);
+// router.get('/remove', clientController.remove);
+
+// router.get('/getApprovedFis', clientController.getApprovedFis);
+
+// router.get('/getApprovedFis2', clientController.getApprovedFis2);
 
 module.exports = router;

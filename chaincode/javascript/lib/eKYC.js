@@ -36,6 +36,40 @@ class eKYC extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
+    async createClient(ctx, clientData) {
+        console.info('============= START : Create client ===========');
+
+        const client = {
+            docType: 'client',
+            ...JSON.parse(clientData)
+        };
+
+        const newId = 'CLIENT' + this.nextClientId;
+        this.nextClientId++;
+
+        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
+        console.info('============= END : Create client ===========');
+
+        return newId;
+    }
+
+    async createFinancialInstitution(ctx, fiData) {
+        console.info('============= START : Create financial institution ===========');
+
+        const fi = {
+            docType: 'fi',
+            ...JSON.parse(fiData)
+        };
+
+        const newId = 'FI' + this.nextFiId;
+        this.nextFiId++;
+
+        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(fi)));
+        console.info('============= END : Create financial institution ===========');
+
+        return newId;
+    }
+
     async getClientData(ctx, clientId, fields) {
 
         const clientAsBytes = await ctx.stub.getState(clientId);
@@ -76,42 +110,8 @@ class eKYC extends Contract {
         return fiAsBytes.toString();
     }
 
-    async createClient(ctx, clientData) {
-        console.info('============= START : Create client ===========');
-
-        const client = {
-            docType: 'client',
-            ...JSON.parse(clientData)
-        };
-
-        const newId = 'CLIENT' + this.nextClientId;
-        this.nextClientId++;
-
-        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
-        console.info('============= END : Create client ===========');
-
-        return newId;
-    }
-
-    async createFinancialInstitution(ctx, fiData) {
-        console.info('============= START : Create financial institution ===========');
-
-        const fi = {
-            docType: 'fi',
-            ...JSON.parse(fiData)
-        };
-
-        const newId = 'FI' + this.nextFiId;
-        this.nextFiId++;
-
-        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(fi)));
-        console.info('============= END : Create financial institution ===========');
-
-        return newId;
-    }
-
     async approve(ctx, clientId, fiId) {
-        console.log('======== START : Approve financial institution for client data access ==========');
+        console.info('======== START : Approve financial institution for client data access ==========');
 
         const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId, fiId]);
         const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [fiId, clientId]);
@@ -126,7 +126,44 @@ class eKYC extends Contract {
 
         await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
         await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
-        console.log('======== END : Approve financial institution for client data access =========');
+        console.info('======== END : Approve financial institution for client data access =========');
+    }
+
+    // async approve2(ctx, clientId, fiId, approvedFields) {
+    //     console.info('======== START : Approve financial institution for client data access ==========');
+
+    //     const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId, fiId]);
+    //     const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [fiId, clientId]);
+
+    //     if (!clientFiIndexKey) {
+    //         throw new Error('Composite key: clientFiIndexKey is null');
+    //     }
+
+    //     if (!fiClientIndexKey) {
+    //         throw new Error('Composite key: fiClientIndexKey is null');
+    //     }
+
+    //     await ctx.stub.putState(clientFiIndexKey, Buffer.from(JSON.stringify(approvedFields)));
+    //     await ctx.stub.putState(fiClientIndexKey, Buffer.from(JSON.stringify(approvedFields)));
+    //     console.info('======== END : Approve financial institution for client data access =========');
+    // }
+
+    async remove(ctx, clientId, fiId) {
+        console.info('======== START : Remove financial institution for client data access ==========');
+
+        const clientFiIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId, fiId]);
+        const clientFiResult = await clientFiIterator.next();
+        if (clientFiResult.value) {
+            await ctx.stub.deleteState(clientFiResult.value.key);
+        }
+
+        const fiClientIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [fiId, clientId]);
+        const fiClientResult = await fiClientIterator.next();
+        if (fiClientResult.value) {
+            await ctx.stub.deleteState(fiClientResult.value.key);
+        }
+
+        console.info('======== END : Remove financial institution for client data access =========');
     }
 
     async getRelationsArray(ctx, relationResultsIterator) {
@@ -135,7 +172,7 @@ class eKYC extends Contract {
 
             const responseRange = await relationResultsIterator.next();
 
-            if (!responseRange || !responseRange.value || !responseRange.value.key) {
+            if (!responseRange || !responseRange.value) {
                 return JSON.stringify(relationsArray);
             }
 
@@ -170,7 +207,7 @@ class eKYC extends Contract {
             try {
                 record = JSON.parse(strValue);
             } catch (err) {
-                console.log(err);
+                console.info(err);
                 record = strValue;
             }
             allResults.push({ Key: key, Record: record });

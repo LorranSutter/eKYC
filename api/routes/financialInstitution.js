@@ -10,10 +10,12 @@ router.post('/create', fiValidator.registration, validate, financialInsitutionCo
 
 router.post('/login', fiValidator.login, validate, financialInsitutionController.login);
 
-router.get('/getClientDataByFI', checkLogin, financialInsitutionController.getClientDataByFI);
+// router.get('/getClientDataByFI', financialInsitutionController.getClientDataByFI);
 
-router.get('/getApprovedClients', checkLogin, financialInsitutionController.getApprovedClients);
+// router.get('/getApprovedClients', checkLogin, financialInsitutionController.getApprovedClients);
 
-router.get('/getFiData', checkLogin, financialInsitutionController.getFiData);
+// router.get('/getFiData', checkLogin, financialInsitutionController.getFiData);
+
+// router.get('/getApprovedClients2', financialInsitutionController.getApprovedClients2);
 
 module.exports = router;
