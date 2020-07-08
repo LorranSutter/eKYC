@@ -51,6 +51,23 @@ exports.login = async (req, res) => {
     return res.json({ userJWT, ledgerId: fi.ledgerId });
 };
 
+exports.getFiData = (req, res) => {
+    networkConnection
+        .evaluateTransaction('getFinancialInstitutionData', [req.cookies.ledgerId])
+        .then(result => {
+            if (result) {
+                if (result.length > 0) {
+                    return res.json({ fiData: JSON.parse(result.toString()) });
+                }
+                return res.json({ fiData: result.toString() });
+            }
+            return res.status(500).json({ error: 'Something went wrong' });
+        })
+        .catch((err) => {
+            return res.status(500).json({ error: `Something went wrong\n ${err}` });
+        });
+};
+
 exports.getClientDataByFI = (req, res) => {
 
     const { clientId, fields } = req.query;
@@ -86,36 +103,3 @@ exports.getApprovedClients = async (req, res) => {
             return res.status(500).json({ error: `Something went wrong\n ${err}` });
         });
 };
-
-exports.getFiData = (req, res) => {
-    networkConnection
-        .evaluateTransaction('getFinancialInstitutionData', [req.cookies.ledgerId])
-        .then(result => {
-            if (result) {
-                if (result.length > 0) {
-                    return res.json({ fiData: JSON.parse(result.toString()) });
-                }
-                return res.json({ fiData: result.toString() });
-            }
-            return res.status(500).json({ error: 'Something went wrong' });
-        })
-        .catch((err) => {
-            return res.status(500).json({ error: `Something went wrong\n ${err}` });
-        });
-};
-
-// exports.getApprovedClients2 = async (req, res) => {
-//     networkConnection
-//         .evaluateTransaction('getRelationByFi2', [req.body.fiId, req.body.clientId])
-//         .then(result => {
-//             if (result) {
-//                 if (result.length > 0) {
-//                     return res.json({ approvedClients: JSON.parse(result.toString()) });
-//                 }
-//             }
-//             return res.status(500).json({ error: 'Something went wrong' });
-//         })
-//         .catch((err) => {
-//             return res.status(500).json({ error: `Something went wrong\n ${err}` });
-//         });
-// };

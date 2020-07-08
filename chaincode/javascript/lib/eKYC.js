@@ -129,25 +129,6 @@ class eKYC extends Contract {
         console.info('======== END : Approve financial institution for client data access =========');
     }
 
-    // async approve2(ctx, clientId, fiId, approvedFields) {
-    //     console.info('======== START : Approve financial institution for client data access ==========');
-
-    //     const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId, fiId]);
-    //     const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [fiId, clientId]);
-
-    //     if (!clientFiIndexKey) {
-    //         throw new Error('Composite key: clientFiIndexKey is null');
-    //     }
-
-    //     if (!fiClientIndexKey) {
-    //         throw new Error('Composite key: fiClientIndexKey is null');
-    //     }
-
-    //     await ctx.stub.putState(clientFiIndexKey, Buffer.from(JSON.stringify(approvedFields)));
-    //     await ctx.stub.putState(fiClientIndexKey, Buffer.from(JSON.stringify(approvedFields)));
-    //     console.info('======== END : Approve financial institution for client data access =========');
-    // }
-
     async remove(ctx, clientId, fiId) {
         console.info('======== START : Remove financial institution for client data access ==========');
 
