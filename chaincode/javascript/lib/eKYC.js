@@ -14,6 +14,11 @@ class eKYC extends Contract {
         this.nextFiId = 0;
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @dev initiate ledger storing initial data
+     */
     async initLedger(ctx) {
         console.info('============= START : Initialize Ledger ===========');
         const clients = initialClientData;
@@ -36,6 +41,13 @@ class eKYC extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {object} clientData
+     * @dev create a new client
+     * @returns {string} new client ID
+     */
     async createClient(ctx, clientData) {
         console.info('============= START : Create client ===========');
 
@@ -53,6 +65,13 @@ class eKYC extends Contract {
         return newId;
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {object} fiData
+     * @dev create a new financial institution
+     * @returns {string} new financial institution ID
+     */
     async createFinancialInstitution(ctx, fiData) {
         console.info('============= START : Create financial institution ===========');
 
@@ -70,6 +89,14 @@ class eKYC extends Contract {
         return newId;
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {string} clientId
+     * @param {Array} fields
+     * @dev get specified fields of client data
+     * @returns {object} client data as an object
+     */
     async getClientData(ctx, clientId, fields) {
 
         const clientAsBytes = await ctx.stub.getState(clientId);
@@ -92,6 +119,15 @@ class eKYC extends Contract {
         return clientAsBytes;
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {string} fiId
+     * @param {string} clientId
+     * @param {Array} fields
+     * @dev get specified fields of client data when called by an FI
+     * @returns {object} client data as an object
+     */
     async getClientDataByFI(ctx, fiId, clientId, fields) {
 
         const relations = await this.getRelationByFi(ctx, fiId);
@@ -102,6 +138,13 @@ class eKYC extends Contract {
         return await this.getClientData(ctx, clientId, fields);
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {string} fiId
+     * @dev get financial insitution data
+     * @returns {object} FI data as an object
+     */
     async getFinancialInstitutionData(ctx, fiId) {
         const fiAsBytes = await ctx.stub.getState(fiId);
         if (!fiAsBytes || fiAsBytes.length === 0) {
@@ -110,6 +153,13 @@ class eKYC extends Contract {
         return fiAsBytes.toString();
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {string} clientId
+     * @param {string} fiId
+     * @dev approve FI to access client data
+     */
     async approve(ctx, clientId, fiId) {
         console.info('======== START : Approve financial institution for client data access ==========');
 
@@ -129,6 +179,13 @@ class eKYC extends Contract {
         console.info('======== END : Approve financial institution for client data access =========');
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {string} clientId
+     * @param {Array} fields
+     * @dev remove FI access data approval
+     */
     async remove(ctx, clientId, fiId) {
         console.info('======== START : Remove financial institution for client data access ==========');
 
@@ -147,6 +204,14 @@ class eKYC extends Contract {
         console.info('======== END : Remove financial institution for client data access =========');
     }
 
+    /**
+     *
+     * @private
+     * @param {Context} ctx
+     * @param {Iterator} relationResultsIterator
+     * @dev iterate a composite key iterator
+     * @returns {Array} list of results of the iteration
+     */
     async getRelationsArray(ctx, relationResultsIterator) {
         let relationsArray = [];
         while (true) {
@@ -164,6 +229,13 @@ class eKYC extends Contract {
         }
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {string} clientId
+     * @dev get a list of approved FIs
+     * @returns {Array} list of approved FIs
+     */
     async getRelationByClient(ctx, clientId) {
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId]);
@@ -171,6 +243,13 @@ class eKYC extends Contract {
         return await this.getRelationsArray(ctx, relationResultsIterator);
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @param {string} fiId
+     * @dev get a list of clients who approved the caller FI
+     * @returns {Array} list of clients who approved FI
+     */
     async getRelationByFi(ctx, fiId) {
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [fiId]);
@@ -178,6 +257,12 @@ class eKYC extends Contract {
         return await this.getRelationsArray(ctx, relationResultsIterator);
     }
 
+    /**
+     *
+     * @param {Context} ctx
+     * @dev get a list of all data stored in the ledger
+     * @returns {Array} array of data of the ledger
+     */
     async queryAllData(ctx) {
         const startKey = '';
         const endKey = '';
