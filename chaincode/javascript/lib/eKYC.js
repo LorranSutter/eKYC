@@ -70,7 +70,7 @@ class eKYC extends Contract {
             return null;
         }
         const clientData = JSON.parse(clientAsBytes.toString());
-        const callerId = this.getCallerId();
+        const callerId = this.getCallerId(ctx);
 
         return clientData.whoRegistered !== callerId;
     }
@@ -85,7 +85,7 @@ class eKYC extends Contract {
     async createClient(ctx, clientData) {
         console.info('============= START : Create client ===========');
 
-        const callerId = this.getCallerId();
+        const callerId = this.getCallerId(ctx);
 
         const client = {
             docType: 'client',
@@ -175,7 +175,7 @@ class eKYC extends Contract {
         }
 
         const clientData = JSON.parse(clientAsBytes.toString());
-        const callerId = this.getCallerId();
+        const callerId = this.getCallerId(ctx);
 
         // Check caller is who registered
         if (clientData.whoRegistered !== callerId) {
@@ -216,7 +216,7 @@ class eKYC extends Contract {
             return null;
         }
 
-        const callerId = this.getCallerId();
+        const callerId = this.getCallerId(ctx);
         const fiData = JSON.parse(fiAsBytes.toString());
         if (fiData.ledgerUser !== callerId) {
             return null;
@@ -340,7 +340,7 @@ class eKYC extends Contract {
      */
     async getRelationByFi(ctx) {
 
-        const callerID = this.getCallerId();
+        const callerID = this.getCallerId(ctx);
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [callerID]);
 
