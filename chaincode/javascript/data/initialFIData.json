@@ -1,14 +1,14 @@
 [
     {
-        "name": "Financial Institution 1",
+        "name": "FI1",
+        "ledgerUser": "FI1",
+        "orgNum": "1",
         "idNumber": "980237234"
     },
     {
-        "name": "Financial Institution 2",
+        "name": "FI2",
+        "ledgerUser": "FI2",
+        "orgNum": "2",
         "idNumber": "123353257"
-    },
-    {
-        "name": "Financial Institution 3",
-        "idNumber": "238023512"
     }
 ]

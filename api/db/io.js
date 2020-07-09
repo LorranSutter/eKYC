@@ -1,18 +1,36 @@
-const User = require('../models/user');
+const Client = require('../models/client');
+const Fi = require('../models/fi');
 
-exports.userCreate = async function (login, password, userType, ledgerId) {
-    const newUser = new User({
+exports.clientCreate = async function (login, password, ledgerId) {
+    const newClient = new Client({
         login,
         password,
-        userType,
         ledgerId
     });
 
-    newUser.save(function (err) {
+    newClient.save(function (err) {
         if (err) {
             console.log(err);
             return;
         }
-        console.log('New user: ' + newUser.login);
+        console.log('New client: ' + newClient.login);
+    });
+};
+
+exports.fiCreate = async function (login, password, ledgerId, ledgerUser, orgNum) {
+    const newFi = new Fi({
+        login,
+        password,
+        ledgerId,
+        ledgerUser,
+        orgNum
+    });
+
+    newFi.save(function (err) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log('New fi: ' + newFi.login);
     });
 };

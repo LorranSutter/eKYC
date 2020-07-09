@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 const Schema = mongoose.Schema;
 
-const UserSchema = Schema(
+const FiSchema = Schema(
     {
         login: {
             type: String,
@@ -14,19 +14,20 @@ const UserSchema = Schema(
             type: String,
             required: true
         },
-        userType: {
-            type: String,
-            required: true,
-            default: 'client'
-        },
         ledgerId: {
             type: String,
             required: true
+        },
+        ledgerUser: {
+            type: String
+        },
+        orgNum: {
+            type: Number
         }
     }
 );
 
-UserSchema.pre('save', function (next) {
+FiSchema.pre('save', function (next) {
     // Check if document is new or a new password has been set
     if (this.isNew || this.isModified('password')) {
         // Saving reference to this because of changing scopes
@@ -46,16 +47,12 @@ UserSchema.pre('save', function (next) {
     }
 });
 
-UserSchema.path('login').validate((login) => {
+FiSchema.path('login').validate((login) => {
     return login.length >= 1 && login.length <= 100;
 }, 'Login length must be between 1 and 100');
 
-UserSchema.path('password').validate((password) => {
+FiSchema.path('password').validate((password) => {
     return password.length >= 6;
 }, 'Password length must be greater than or equal to 6');
 
-UserSchema.path('userType').validate((type) => {
-    return ['client', 'fi'].includes(type);
-}, 'User type must be client or fi');
-
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('Fi', FiSchema);

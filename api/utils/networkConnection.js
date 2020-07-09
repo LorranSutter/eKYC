@@ -3,7 +3,7 @@ const path = require('path');
 
 const { Gateway, Wallets } = require('fabric-network');
 
-async function getGateWay() {
+async function getGateWay(orgNumber, userName) {
     // load the network configuration
     const ccpPath = path.resolve(
         __dirname,
@@ -12,8 +12,8 @@ async function getGateWay() {
         'test-network',
         'organizations',
         'peerOrganizations',
-        'org1.example.com',
-        'connection-org1.json'
+        `org${orgNumber}.example.com`,
+        `connection-org${orgNumber}.json`
     );
 
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
@@ -25,16 +25,16 @@ async function getGateWay() {
     const gateway = new Gateway();
     await gateway.connect(ccp, {
         wallet,
-        identity: 'appUser',
+        identity: userName,
         discovery: { enabled: true, asLocalhost: true },
     });
 
     return gateway;
 }
 
-exports.evaluateTransaction = async (transaction, params = null) => {
+exports.evaluateTransaction = async (transaction, orgNumber, userName, params = null) => {
 
-    const gateway = await getGateWay();
+    const gateway = await getGateWay(orgNumber, userName);
 
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork('mychannel');
@@ -51,9 +51,9 @@ exports.evaluateTransaction = async (transaction, params = null) => {
     return result;
 };
 
-exports.submitTransaction = async (transaction, params = null) => {
+exports.submitTransaction = async (transaction, orgNumber, userName, params = null) => {
 
-    const gateway = await getGateWay();
+    const gateway = await getGateWay(orgNumber, userName);
 
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork('mychannel');
