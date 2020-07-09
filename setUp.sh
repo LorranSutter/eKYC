@@ -35,11 +35,11 @@ pushd ./test-network
 popd
 
 pushd ./api/utils
-node enrollAdmin.js
-node registerUser.js
+node enrollAdmin.js 1 admin
+node registerUser.js 1 admin appUser
 # node invoke.js
 # node query.js
-node populate.js
+# node populate.js
 popd
 
 # cat <<EOF
