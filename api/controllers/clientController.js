@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const Client = require('../models/client');
+const User = require('../models/user');
 const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
 
@@ -26,13 +26,19 @@ const networkConnection = require('../utils/networkConnection');
 
 exports.login = async (req, res) => {
 
-    const { login, password } = req.body;
+    const { login, password, userType } = req.body;
 
     if (!login || !password) {
         return res.status(401).json({ message: 'Invalid login/password' });
     }
 
-    const client = await Client.findOne({ login });
+    const client = await User.findOne({
+        $and:
+            [
+                { login },
+                { userType }
+            ]
+    });
     if (!client) {
         return res.status(401).json({ message: 'Invalid login' });
     }
@@ -104,7 +110,7 @@ exports.remove = async (req, res) => {
 
 exports.getApprovedFis = async (req, res) => {
     networkConnection
-        .evaluateTransaction('getRelationByClient', 1,'FI1', [req.query.ledgerId])
+        .evaluateTransaction('getRelationByClient', 1, 'FI1', [req.query.ledgerId])
         .then(result => {
             if (result) {
                 if (result.length > 0) {

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const Fi = require('../models/fi');
+const User = require('../models/user');
 const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
 
@@ -46,13 +46,19 @@ exports.createClient = (req, res) => {
 
 exports.login = async (req, res) => {
 
-    const { login, password } = req.body;
+    const { login, password, userType } = req.body;
 
     if (!login || !password) {
         return res.status(401).json({ message: 'Invalid login/password' });
     }
 
-    const fi = await Fi.findOne({ login });
+    const fi = await User.findOne({
+        $and:
+            [
+                { login },
+                { userType }
+            ]
+    });
     if (!fi) {
         return res.status(401).json({ message: 'Invalid login' });
     }

@@ -1,8 +1,7 @@
-const Client = require('../models/client');
-const Fi = require('../models/fi');
+const User = require('../models/user');
 
 exports.clientCreate = async function (login, password, ledgerId, whoRegistered) {
-    const newClient = new Client({
+    const newClient = new User({
         login,
         password,
         ledgerId,
@@ -19,7 +18,7 @@ exports.clientCreate = async function (login, password, ledgerId, whoRegistered)
 };
 
 exports.fiCreate = async function (login, password, ledgerId, ledgerUser, orgNum) {
-    const newFi = new Fi({
+    const newFi = new User({
         login,
         password,
         ledgerId,

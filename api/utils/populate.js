@@ -5,8 +5,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '..', '..', '.env') });
 const async = require('async');
 const mongoose = require('mongoose');
 
-const Client = require('../models/client');
-const Fi = require('../models/fi');
+const User = require('../models/user');
 const networkConnection = require('./networkConnection');
 
 const InitiateMongoServer = require('../db/connection');
@@ -15,7 +14,7 @@ const mongoURI = process.env.MONGODB_URI_DEV;
 InitiateMongoServer(mongoURI);
 
 function saveClient(login, password, ledgerId, whoRegistered, cb) {
-    const newClient = new Client({
+    const newClient = new User({
         login,
         password,
         ledgerId,
@@ -33,9 +32,10 @@ function saveClient(login, password, ledgerId, whoRegistered, cb) {
 }
 
 function saveFi(login, password, ledgerId, ledgerUser, orgNum, cb) {
-    const newFi = new Fi({
+    const newFi = new User({
         login,
         password,
+        userType: 'fi',
         ledgerId,
         ledgerUser,
         orgNum
