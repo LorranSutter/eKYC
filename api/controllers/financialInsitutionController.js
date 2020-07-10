@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const User = require('../models/client');
+const Fi = require('../models/fi');
 const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
 
@@ -29,6 +29,7 @@ exports.createClient = (req, res) => {
     const { login, password, name, dateOfBirth, address, idNumber } = req.body;
     const clientData = JSON.stringify({ name, dateOfBirth, address, idNumber });
 
+    // TODO User cookies
     networkConnection
         .submitTransaction('createClient', req.query.orgNum, req.query.ledgerUser, [clientData])
         .then(async result => {
@@ -45,18 +46,14 @@ exports.createClient = (req, res) => {
 
 exports.login = async (req, res) => {
 
-    const { login, password, userType } = req.body;
+    const { login, password } = req.body;
 
     if (!login || !password) {
         return res.status(401).json({ message: 'Invalid login/password' });
     }
 
-    const fi = await User.findOne({ login });
+    const fi = await Fi.findOne({ login });
     if (!fi) {
-        return res.status(401).json({ message: 'Invalid login' });
-    }
-
-    if (fi.userType !== userType) {
         return res.status(401).json({ message: 'Invalid login' });
     }
 
@@ -71,8 +68,9 @@ exports.login = async (req, res) => {
 };
 
 exports.getFiData = (req, res) => {
+    // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getFinancialInstitutionData', [req.cookies.ledgerId])
+        .evaluateTransaction('getFinancialInstitutionData', req.query.orgNum, req.query.ledgerUser)
         .then(result => {
             if (result) {
                 if (result.length > 0) {
@@ -91,6 +89,7 @@ exports.getClientData = (req, res) => {
 
     const { orgNum, ledgerUser, clientId, fields } = req.query;
 
+    // TODO Use cookies
     networkConnection
         .evaluateTransaction('getClientData', orgNum, ledgerUser, [clientId, fields || []])
         .then(result => {
@@ -108,8 +107,9 @@ exports.getClientData = (req, res) => {
 };
 
 exports.getApprovedClients = async (req, res) => {
+    // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getRelationByFi', [req.cookies.ledgerId])
+        .evaluateTransaction('getRelationByFi', req.query.orgNum, req.query.ledgerUser)
         .then(result => {
             if (result) {
                 if (result.length > 0) {

@@ -1,11 +1,12 @@
 const Client = require('../models/client');
 const Fi = require('../models/fi');
 
-exports.clientCreate = async function (login, password, ledgerId) {
+exports.clientCreate = async function (login, password, ledgerId, whoRegistered) {
     const newClient = new Client({
         login,
         password,
-        ledgerId
+        ledgerId,
+        whoRegistered
     });
 
     newClient.save(function (err) {

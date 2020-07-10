@@ -71,8 +71,12 @@ class eKYC extends Contract {
         }
         const clientData = JSON.parse(clientAsBytes.toString());
         const callerId = this.getCallerId(ctx);
+        console.log('isWhoRegistered');
+        console.log(callerId);
+        console.log(clientData.whoRegistered);
+        console.log(clientData.whoRegistered === callerId);
 
-        return clientData.whoRegistered !== callerId;
+        return clientData.whoRegistered === callerId;
     }
 
     /**
@@ -181,7 +185,8 @@ class eKYC extends Contract {
         if (clientData.whoRegistered !== callerId) {
 
             // If caller is not who registered, check if caller is approved
-            const relations = this.getRelationByFi(ctx, callerId);
+            const relations = await this.getRelationByFi(ctx, callerId);
+            console.log('Relations', relations);
             if (!relations.includes(clientId)) {
                 return null;
             }
@@ -206,23 +211,19 @@ class eKYC extends Contract {
     /**
      *
      * @param {Context} ctx
-     * @param {string} fiId
      * @dev get financial insitution data
      * @returns {object} FI data as an object
      */
-    async getFinancialInstitutionData(ctx, fiId) {
-        const fiAsBytes = await ctx.stub.getState(fiId);
+    async getFinancialInstitutionData(ctx) {
+
+        const callerId = this.getCallerId(ctx);
+
+        const fiAsBytes = await ctx.stub.getState(callerId);
         if (!fiAsBytes || fiAsBytes.length === 0) {
             return null;
         }
 
-        const callerId = this.getCallerId(ctx);
-        const fiData = JSON.parse(fiAsBytes.toString());
-        if (fiData.ledgerUser !== callerId) {
-            return null;
-        }
-
-        return fiData;
+        return fiAsBytes.toString();
     }
 
     /**
@@ -236,12 +237,19 @@ class eKYC extends Contract {
     async approve(ctx, clientId, fiId) {
         console.info('======== START : Approve financial institution for client data access ==========');
 
-        if (!this.isWhoRegistered(ctx, clientId)) {
+        const res = await this.isWhoRegistered(ctx, clientId);
+        console.log(res);
+        console.log(typeof res);
+
+        if (!res) {
+            console.log('here');
             return false;
         }
 
         const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId, fiId]);
         const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [fiId, clientId]);
+        console.log(clientFiIndexKey);
+        console.log(fiClientIndexKey);
 
         if (!clientFiIndexKey) {
             throw new Error('Composite key: clientFiIndexKey is null');
@@ -251,8 +259,10 @@ class eKYC extends Contract {
             throw new Error('Composite key: fiClientIndexKey is null');
         }
 
+        console.log('After throws');
         await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
         await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
+        console.log('After put State');
         console.info('======== END : Approve financial institution for client data access =========');
 
         return true;
@@ -302,7 +312,7 @@ class eKYC extends Contract {
         let relationsArray = [];
         while (true) {
 
-            const responseRange = relationResultsIterator.next();
+            const responseRange = await relationResultsIterator.next();
 
             if (!responseRange || !responseRange.value) {
                 return JSON.stringify(relationsArray);
@@ -323,11 +333,13 @@ class eKYC extends Contract {
      */
     async getRelationByClient(ctx, clientId) {
 
-        if(!this.isWhoRegistered(ctx,clientId)){
+        if (!this.isWhoRegistered(ctx, clientId)) {
             return null;
         }
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId]);
+        const result = await this.getRelationsArray(ctx, relationResultsIterator);
+        console.log(result);
 
         return this.getRelationsArray(ctx, relationResultsIterator);
     }
@@ -343,8 +355,10 @@ class eKYC extends Contract {
         const callerID = this.getCallerId(ctx);
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [callerID]);
+        const result = await this.getRelationsArray(ctx, relationResultsIterator);
+        console.log(result);
 
-        return this.getRelationsArray(ctx, relationResultsIterator);
+        return result;
     }
 
     /**

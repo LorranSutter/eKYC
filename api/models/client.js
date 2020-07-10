@@ -17,6 +17,10 @@ const ClientSchema = Schema(
         ledgerId: {
             type: String,
             required: true
+        },
+        whoRegistered: {
+            type: String,
+            required: true
         }
     }
 );

@@ -14,11 +14,12 @@ const mongoURI = process.env.MONGODB_URI_DEV;
 
 InitiateMongoServer(mongoURI);
 
-function saveClient(login, password, ledgerId, cb) {
+function saveClient(login, password, ledgerId, whoRegistered, cb) {
     const newClient = new Client({
         login,
         password,
-        ledgerId
+        ledgerId,
+        whoRegistered
     });
 
     newClient.save(function (err) {
@@ -56,6 +57,7 @@ function saveUser(user, cb) {
             user.Record.name.replace(/ /g, ''),
             '123456',
             user.Key,
+            user.Record.whoRegistered,
             cb);
     } else if (user.Key.match(/^FI\d+$/)) {
         saveFi(
