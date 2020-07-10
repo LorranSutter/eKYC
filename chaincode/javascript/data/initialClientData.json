@@ -4,48 +4,69 @@
         "dateOfBirth": "1987-03-10",
         "address": "Toronto, ON - Canada",
         "idNumber": "873451",
-        "whoRegistered": "FI1"
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "user02",
         "dateOfBirth": "1991-11-19",
         "address": "Missisauga, ON - Canada",
         "idNumber": "839047",
-        "whoRegistered": "FI2"
+        "whoRegistered": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
     },
     {
         "name": "Jonas Kahnwald",
         "dateOfBirth": "2002-07-01",
         "address": "Winden",
         "idNumber": "123456",
-        "whoRegistered": "FI1"
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "Martha Nielsen",
         "dateOfBirth": "2002-04-05",
         "address": "Winden",
         "idNumber": "123123",
-        "whoRegistered": "FI2"
+        "whoRegistered": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
     },
     {
         "name": "Claudia Tiedemann",
         "dateOfBirth": "1942-10-17",
         "address": "Winden",
         "idNumber": "123321",
-        "whoRegistered": "FI1"
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "Elisabeth Doppler",
         "dateOfBirth": "2011-12-21",
         "address": "Winden",
         "idNumber": "654321",
-        "whoRegistered": "FI1"
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "H.G. Tannhaus",
         "dateOfBirth": "1923-11-07",
         "address": "Winden",
         "idNumber": "654123",
-        "whoRegistered": "FI2"
+        "whoRegistered": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
     }
 ]

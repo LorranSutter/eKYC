@@ -18,7 +18,7 @@ function saveClient(login, password, ledgerId, whoRegistered, cb) {
         login,
         password,
         ledgerId,
-        whoRegistered
+        whoRegistered: JSON.stringify(whoRegistered)
     });
 
     newClient.save(function (err) {
@@ -31,14 +31,13 @@ function saveClient(login, password, ledgerId, whoRegistered, cb) {
     });
 }
 
-function saveFi(login, password, ledgerId, ledgerUser, orgNum, cb) {
+function saveFi(login, password, ledgerId, orgCredentials, cb) {
     const newFi = new User({
         login,
         password,
         userType: 'fi',
         ledgerId,
-        ledgerUser,
-        orgNum
+        orgCredentials: JSON.stringify(orgCredentials)
     });
 
     newFi.save(function (err) {
@@ -64,8 +63,7 @@ function saveUser(user, cb) {
             user.Record.name.replace(/ /g, ''),
             '123456',
             user.Key,
-            user.Record.ledgerUser,
-            user.Record.orgNum,
+            user.Record.orgCredentials,
             cb);
     } else {
         console.log(`Oooppss... this user is non-standard ${user}`);

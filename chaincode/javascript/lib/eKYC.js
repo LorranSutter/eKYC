@@ -73,10 +73,10 @@ class eKYC extends Contract {
         const callerId = this.getCallerId(ctx);
         console.log('isWhoRegistered');
         console.log(callerId);
-        console.log(clientData.whoRegistered);
-        console.log(clientData.whoRegistered === callerId);
+        console.log(clientData.whoRegistered.ledgerUser);
+        console.log(clientData.whoRegistered.ledgerUser === callerId);
 
-        return clientData.whoRegistered === callerId;
+        return clientData.whoRegistered.ledgerUser === callerId;
     }
 
     /**
@@ -89,12 +89,16 @@ class eKYC extends Contract {
     async createClient(ctx, clientData) {
         console.info('============= START : Create client ===========');
 
+        clientData = JSON.parse(clientData);
         const callerId = this.getCallerId(ctx);
+
+        if (clientData.whoRegistered.ledgerUser !== callerId) {
+            return null;
+        }
 
         const client = {
             docType: 'client',
-            whoRegistered: callerId,
-            ...JSON.parse(clientData)
+            ...clientData
         };
 
         const newId = 'CLIENT' + this.nextClientId;
@@ -182,7 +186,7 @@ class eKYC extends Contract {
         const callerId = this.getCallerId(ctx);
 
         // Check caller is who registered
-        if (clientData.whoRegistered !== callerId) {
+        if (clientData.whoRegistered.ledgerUser !== callerId) {
 
             // If caller is not who registered, check if caller is approved
             const relations = await this.getRelationByFi(ctx, callerId);
@@ -193,19 +197,15 @@ class eKYC extends Contract {
         }
 
         // Get only requested fields
-        if (fields) {
-            fields = fields.split(',').map(field => field.trim());
+        fields = fields.split(',').map(field => field.trim());
 
-            let result = {};
-            for (const field of fields) {
-                if (clientData.hasOwnProperty(field)) {
-                    result[field] = clientData[field];
-                }
+        let result = {};
+        for (const field of fields) {
+            if (clientData.hasOwnProperty(field)) {
+                result[field] = clientData[field];
             }
-            return result;
         }
-
-        return clientData;
+        return result;
     }
 
     /**
@@ -341,7 +341,7 @@ class eKYC extends Contract {
         const result = await this.getRelationsArray(ctx, relationResultsIterator);
         console.log(result);
 
-        return this.getRelationsArray(ctx, relationResultsIterator);
+        return result;
     }
 
     /**

@@ -1,14 +1,18 @@
 [
     {
         "name": "FI1",
-        "ledgerUser": "FI1",
-        "orgNum": "1",
-        "idNumber": "980237234"
+        "idNumber": "980237234",
+        "orgCredentials": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "FI2",
-        "ledgerUser": "FI2",
-        "orgNum": "2",
-        "idNumber": "123353257"
+        "idNumber": "123353257",
+        "orgCredentials": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
     }
 ]

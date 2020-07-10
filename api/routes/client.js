@@ -5,19 +5,30 @@ const clientController = require('../controllers/clientController');
 const { checkLogin } = require('../middleware/auth');
 const clientValidator = require('../middleware/clientValidator');
 const { validate } = require('../middleware/validate');
+const credentials = require('../middleware/credentials');
 
 // router.post('/create', clientValidator.registration, validate, clientController.create);
 
 router.post('/login', clientValidator.login, validate, clientController.login);
 
-router.post('/getClientData', checkLogin, clientController.getClientData);
+// TODO Restore checkLogin
+router.get('/getClientData',
+    credentials.getWhoRegistered,
+    clientController.getClientData);
 
 // TODO Restore checkLogin
-router.get('/approve', clientController.approve);
-
-router.get('/remove', checkLogin, clientController.remove);
+router.get('/approve',
+    credentials.getWhoRegistered,
+    clientController.approve);
 
 // TODO Restore checkLogin
-router.get('/getApprovedFis', clientController.getApprovedFis);
+router.get('/remove',
+    credentials.getWhoRegistered,
+    clientController.remove);
+
+// TODO Restore checkLogin
+router.get('/getApprovedFis',
+    credentials.getWhoRegistered,
+    clientController.getApprovedFis);
 
 module.exports = router;

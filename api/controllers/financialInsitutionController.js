@@ -5,37 +5,24 @@ const User = require('../models/user');
 const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
 
-// exports.create = (req, res) => {
-
-//     const { login, password, name, idNumber } = req.body;
-//     const fiData = JSON.stringify({ name, idNumber });
-
-//     networkConnection
-//         .submitTransaction('createFinancialInstitution', [fiData])
-//         .then(async result => {
-//             if (result) {
-//                 await io.userCreate(login, password, 'fi', result.toString());
-//                 return res.json({ result: 'Financial institution created', ledgerId: result.toString() });
-//             }
-//             return res.status(500).json({ error: 'Something went wrong' });
-//         })
-//         .catch((err) => {
-//             return res.status(500).json({ error: `Something went wrong\n ${err}` });
-//         });
-// };
-
 exports.createClient = (req, res) => {
 
-    const { login, password, name, dateOfBirth, address, idNumber } = req.body;
-    const clientData = JSON.stringify({ name, dateOfBirth, address, idNumber });
+    const orgNum = req.orgNum;
+    const ledgerUser = req.ledgerUser;
 
-    // TODO User cookies
+    const { login, password, name, dateOfBirth, address, idNumber } = req.body;
+    const clientData = JSON.stringify({ name, dateOfBirth, address, idNumber, whoRegistered: { orgNum, ledgerUser } });
+
+    // TODO Use cookies
     networkConnection
-        .submitTransaction('createClient', req.query.orgNum, req.query.ledgerUser, [clientData])
+        .submitTransaction('createClient', orgNum, ledgerUser, [clientData])
         .then(async result => {
             if (result) {
-                await io.clientCreate(login, password, result.toString());
-                return res.json({ result: 'Client created', ledgerId: result.toString() });
+                result = result.toString();
+                if (result.length > 0) {
+                    await io.clientCreate(login, password, result, JSON.stringify({ whoRegistered: { orgNum, ledgerUser } }));
+                    return res.json({ result: 'Client created', ledgerId: result });
+                }
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -70,13 +57,14 @@ exports.login = async (req, res) => {
 
     const userJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
 
-    return res.json({ userJWT, ledgerId: fi.ledgerId });
+    // TODO Return encrypted orgNum and ledgerUser
+    return res.json({ userJWT, orgCredentials: fi.orgCredentials });
 };
 
 exports.getFiData = (req, res) => {
     // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getFinancialInstitutionData', req.query.orgNum, req.query.ledgerUser)
+        .evaluateTransaction('getFinancialInstitutionData', req.orgNum, req.ledgerUser)
         .then(result => {
             if (result) {
                 if (result.length > 0) {
@@ -93,11 +81,12 @@ exports.getFiData = (req, res) => {
 
 exports.getClientData = (req, res) => {
 
-    const { orgNum, ledgerUser, clientId, fields } = req.query;
+    const { clientId } = req.query;
+    const { fields } = req.body;
 
     // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getClientData', orgNum, ledgerUser, [clientId, fields || []])
+        .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [clientId, fields])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
@@ -115,7 +104,7 @@ exports.getClientData = (req, res) => {
 exports.getApprovedClients = async (req, res) => {
     // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getRelationByFi', req.query.orgNum, req.query.ledgerUser)
+        .evaluateTransaction('getRelationByFi', req.orgNum, req.ledgerUser)
         .then(result => {
             if (result) {
                 if (result.length > 0) {
