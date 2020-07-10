@@ -38,7 +38,10 @@ async function main() {
         // const fields = [];
 
         // Evaluate the specified transaction.
-        const result = await contract.evaluateTransaction('getClientData', 'CLIENT1', fields);
+        // const result = await contract.evaluateTransaction('getClientData', 'CLIENT1', fields);
+        // const result = await contract.evaluateTransaction('getRelationByFi');
+        const result = await contract.evaluateTransaction('getFinancialInstitutionData');
+        // const result = await contract.evaluateTransaction('getRelationByClient', 'CLIENT2');
         // const result = await contract.evaluateTransaction('queryAllData');
         console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
         // const result2 = await contract.evaluateTransaction('getClientDataByFI', 'FI0', 'CLIENT0', fields);

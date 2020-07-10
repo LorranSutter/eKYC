@@ -47,9 +47,10 @@ async function main() {
         };
 
         // Submit the specified transaction.
-        await contract.submitTransaction('createClient', JSON.stringify(clientData));
-        await contract.submitTransaction('createFinancialInstitution', JSON.stringify(fiData));
-        await contract.submitTransaction('approve', 'CLIENT0', 'FI0');
+        // await contract.submitTransaction('createClient', JSON.stringify(clientData));
+        // await contract.submitTransaction('createFinancialInstitution', JSON.stringify(fiData));
+        const result = await contract.submitTransaction('remove', 'CLIENT5', 'FI2');
+        console.log(result.toString());
         console.log('Transaction has been submitted');
 
         // Disconnect from the gateway.
