@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Flex, Box, Card, Heading, Form, Text, Button, Loader } from 'rimble-ui';
 
+import qs from 'qs';
 import axios from 'axios';
 
 import api from '../../service/api';
@@ -67,42 +68,41 @@ const Fi = () => {
         }
     }, []);
 
-    // useEffect(() => {
-    //     if (isLoading) {
-    //         try {
-    //             api
-    //                 .get(`/fi/getClientDataByFI`, {
-    //                     withCredentials: true,
-    //                     params: {
-    //                         clientId: clientId,
-    //                         fields: [...clientFields]
-    //                     }
-    //                 })
-    //                 .then(res => {
-    //                     if (res.status === 200) {
-    //                         setUserData(res.data.clientData, setAcquiredClientData);
-    //                     } else {
-    //                         console.log('Oopps... something wrong, status code ' + res.status);
-    //                         return function cleanup() { }
-    //                     }
-    //                 })
-    //                 .catch((err) => {
-    //                     console.log('Oopps... something wrong');
-    //                     console.log(err);
-    //                     return function cleanup() { }
-    //                 })
-    //                 .finally(() => {
-    //                     setIsLoading(false);
-    //                     setClientId('');
-    //                 });
-    //         } catch (error) {
-    //             console.log('Oopps... something wrong');
-    //             console.log(error);
-    //             setIsLoading(false);
-    //             return function cleanup() { }
-    //         }
-    //     }
-    // }, [isLoading, clientFields, clientId]);
+    useEffect(() => {
+        if (isLoading) {
+            try {
+                api
+                    .get('/fi/getClientData', {
+                        params: {
+                            clientId: clientId,
+                            fields: [...clientFields]
+                        }
+                    })
+                    .then(res => {
+                        if (res.status === 200) {
+                            setUserData(res.data.clientData, setAcquiredClientData);
+                        } else {
+                            console.log('Oopps... something wrong, status code ' + res.status);
+                            return function cleanup() { }
+                        }
+                    })
+                    .catch((err) => {
+                        console.log('Oopps... something wrong');
+                        console.log(err);
+                        return function cleanup() { }
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                        setClientId('');
+                    });
+            } catch (error) {
+                console.log('Oopps... something wrong');
+                console.log(error);
+                setIsLoading(false);
+                return function cleanup() { }
+            }
+        }
+    }, [isLoading, clientFields, clientId]);
 
     const handleSubmit = e => {
         e.preventDefault();

@@ -79,12 +79,11 @@ exports.getFiData = (req, res) => {
 
 exports.getClientData = (req, res) => {
 
-    const { clientId } = req.query;
-    const { fields } = req.body;
+    const { clientId, fields } = req.query;
 
     // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [clientId, fields])
+        .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [clientId, fields || []])
         .then(result => {
             if (result) {
                 if (result.length > 0) {

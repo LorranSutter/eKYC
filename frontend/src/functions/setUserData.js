@@ -4,7 +4,7 @@ export function setUserData(userData, setData) {
         { label: 'Address', value: userData.address },
         { label: 'Date of Birth', value: userData.dateOfBirth },
         { label: 'Id Number', value: userData.idNumber },
-        { label: 'Who Registered', value: userData.whoRegistered.ledgerUser }
+        { label: 'Who Registered', value: userData.whoRegistered && userData.whoRegistered.ledgerUser }
     ];
     userData = userData.filter(item => item.value);
     setData(userData);
