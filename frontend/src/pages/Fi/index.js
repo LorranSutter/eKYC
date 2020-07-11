@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Flex, Box, Card, Heading, Form, Text, Button, Loader } from 'rimble-ui';
 
-import qs from 'qs';
 import axios from 'axios';
 
 import api from '../../service/api';
@@ -119,12 +118,13 @@ const Fi = () => {
 
     return (
         <Flex minWidth={380}>
-            <Box mx={'auto'} width={10 / 12}>
+            <Box mx={'auto'} width={[1, 11 / 12, 10 / 12]}>
                 <Flex px={2} mx={'auto'} justifyContent='space-between'>
                     <Box my={'auto'}>
                         <Heading as={'h1'} color='primary'>eKYC</Heading>
                     </Box>
                     <Box my={'auto'}>
+                        <Button mr={2} onClick={handleClickLogout}>New Client</Button>
                         <Button onClick={handleClickLogout}>Logout</Button>
                     </Box>
                 </Flex>

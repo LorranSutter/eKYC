@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader } from 'rimble-ui';
+import { Flex, Box, Card, Heading, Text, Form, Field, Radio, Button, Loader, Image } from 'rimble-ui';
 
 import qs from 'qs';
 
+import logo from '../../assets/eKYC.svg';
 import api from '../../service/api';
 
 const Login = () => {
@@ -98,7 +99,13 @@ const Login = () => {
         <Flex height={'100vh'}>
             <Box mx={'auto'} my={'auto'} width={[1, 1 / 2, 1 / 3, 1 / 4]}>
                 <Card>
-                    <Heading as={"h1"} mx={'auto'} color={'primary'}>eKYC</Heading>
+                    <Image
+                        alt="eKYC logo"
+                        height="130"
+                        width={1}
+                        src={logo}
+                    />
+                    <Heading as={'h1'} mt={1} mb={3} textAlign={'center'} color={'primary'}>eKYC</Heading>
                     <Form onSubmit={handleSubmit}>
                         <Flex mx={-3} flexWrap={"wrap"}>
                             <Box width={1} px={3}>
