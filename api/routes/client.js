@@ -21,8 +21,12 @@ router.get('/approve',
     credentials.getWhoRegistered,
     clientController.approve);
 
+router.post('/approve',
+    credentials.getWhoRegistered,
+    clientController.approve);
+
 // TODO Restore checkLogin
-router.get('/remove',
+router.post('/remove',
     credentials.getWhoRegistered,
     clientController.remove);
 

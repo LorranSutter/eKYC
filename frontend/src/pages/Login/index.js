@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader } from 'rimble-ui';
 
-import api from '../../service/api';
+import apiWithoutCredentials from '../../service/apiWithoutCredentials';
 
 const Login = () => {
 
@@ -54,12 +54,14 @@ const Login = () => {
     useEffect(() => {
         if (validated && isLoading) {
             try {
-                api
+                apiWithoutCredentials
                     .post(`/${userType}/login`, { login, password, userType })
                     .then(res => {
                         if (res.status === 200) {
                             setCookie('userJWT', res.data.userJWT);
-                            setCookie('ledgerId', res.data.ledgerId);
+                            res.data.ledgerId && setCookie('ledgerId', res.data.ledgerId);
+                            res.data.whoRegistered && setCookie('whoRegistered', res.data.whoRegistered);
+                            res.data.orgCredentials && setCookie('orgCredentials', res.data.orgCredentials);
                             history.push(`/${userType}`);
                         } else {
                             console.log('Oopps... something wrong, status code ' + res.status);

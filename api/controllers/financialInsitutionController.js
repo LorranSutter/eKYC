@@ -57,12 +57,10 @@ exports.login = async (req, res) => {
 
     const userJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
 
-    // TODO Return encrypted orgNum and ledgerUser
     return res.json({ userJWT, orgCredentials: fi.orgCredentials });
 };
 
 exports.getFiData = (req, res) => {
-    // TODO Use cookies
     networkConnection
         .evaluateTransaction('getFinancialInstitutionData', req.orgNum, req.ledgerUser)
         .then(result => {
@@ -102,7 +100,6 @@ exports.getClientData = (req, res) => {
 };
 
 exports.getApprovedClients = async (req, res) => {
-    // TODO Use cookies
     networkConnection
         .evaluateTransaction('getRelationByFi', req.orgNum, req.ledgerUser)
         .then(result => {

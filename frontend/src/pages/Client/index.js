@@ -3,9 +3,10 @@ import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Flex, Box, Card, Heading, Text, Form, Field, Button, Loader } from 'rimble-ui';
 
+import qs from 'qs';
 import axios from 'axios';
 
-import api from '../../service/api';
+import apiWithCredentials from '../../service/apiWithCredentials';
 import UserData from '../../components/UserData';
 import { setUserData } from '../../functions/setUserData';
 
@@ -27,15 +28,16 @@ const Client = () => {
     useEffect(() => {
         try {
             axios.all([
-                api.get('/client/getClientData', { withCredentials: true }),
-                api.get('/client/getApprovedFis', { withCredentials: true })
+                apiWithCredentials.get('/client/getClientData'),
+                apiWithCredentials.get('/client/getApprovedFis')
             ])
                 .then(axios.spread(
                     (clientData, approvedFis) => {
                         if (clientData.status === 200 && approvedFis.status === 200) {
+                            clientData = clientData.data.clientData;
                             approvedFis = approvedFis.data.approvedFis;
                             setApprovedFiList(approvedFis);
-                            setUserData(clientData.data.clientData, setClientData);
+                            setUserData(clientData, setClientData);
                         } else {
                             console.log('Oopps... something wrong, status code ' + clientData.status);
                             return function cleanup() { }
@@ -54,10 +56,11 @@ const Client = () => {
     }, []);
 
     useEffect(() => {
+
         if (isLoading) {
             try {
-                api
-                    .get(`/client/approve?fiId=${fiId}`, { withCredentials: true })
+                apiWithCredentials
+                    .post('/client/approve', qs.stringify({ fiId }))
                     .then(res => {
                         if (res.status === 200) {
                             setApprovedMsg(res.data.message);
@@ -72,7 +75,7 @@ const Client = () => {
                         }
                     })
                     .catch((err) => {
-                        console.log('Oopps... something wrong');
+                        console.log('Oopps... something wrong1');
                         console.log(err);
                         return function cleanup() { }
                     })
@@ -81,7 +84,7 @@ const Client = () => {
                         setFiId('');
                     });
             } catch (error) {
-                console.log('Oopps... something wrong');
+                console.log('Oopps... something wrong2');
                 console.log(error);
                 setIsLoading(false);
                 return function cleanup() { }
@@ -98,6 +101,8 @@ const Client = () => {
     function handleClickLogout() {
         removeCookie('userJWT');
         removeCookie('ledgerId');
+        removeCookie('whoRegistered');
+        removeCookie('orgCredentials');
         history.push('/login');
     }
 

@@ -1,8 +1,7 @@
 const crypt = require('../functions/crypt');
 
 exports.getOrgCredentials = (req, res, next) => {
-    // TODO Use cookies
-    let orgCredentials = req.query.orgCredentials;
+    let orgCredentials = req.cookies.orgCredentials;
     orgCredentials = crypt.decrypt(orgCredentials);
     orgCredentials = JSON.parse(orgCredentials);
 
@@ -13,8 +12,7 @@ exports.getOrgCredentials = (req, res, next) => {
 };
 
 exports.getWhoRegistered = (req, res, next) => {
-    // TODO Use cookies
-    let whoRegistered = req.query.whoRegistered;
+    let whoRegistered = req.cookies.whoRegistered;
     whoRegistered = crypt.decrypt(whoRegistered);
     whoRegistered = JSON.parse(whoRegistered);
 

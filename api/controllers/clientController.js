@@ -35,11 +35,10 @@ exports.login = async (req, res) => {
 
 exports.getClientData = (req, res) => {
 
-    const { fields } = req.query;
+    const fields = ['name', 'address', 'dateOfBirth', 'idNumber', 'whoRegistered'];
 
-    // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [req.query.ledgerId, fields || []])
+        .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [req.cookies.ledgerId, fields || []])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
@@ -55,12 +54,15 @@ exports.getClientData = (req, res) => {
 };
 
 exports.approve = async (req, res) => {
+
+    const { fiId } = req.body;
+
     // TODO Use cookies
     networkConnection
-        .submitTransaction('approve', req.orgNum, req.ledgerUser, [req.query.ledgerId, req.query.fiId])
+        .submitTransaction('approve', req.orgNum, req.ledgerUser, [req.cookies.ledgerId, fiId])
         .then(result => {
             if (result) {
-                return res.json({ message: `Financial Institution ${req.query.fiId} approved by ${req.cookies.ledgerId}` });
+                return res.json({ message: `Financial Institution ${fiId} approved by ${req.cookies.ledgerId}` });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -70,12 +72,15 @@ exports.approve = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
+
+    const { fiId } = req.body;
+
     // TODO Use cookies
     networkConnection
-        .submitTransaction('remove', req.orgNum, req.ledgerUser, [req.query.ledgerId, req.query.fiId])
+        .submitTransaction('remove', req.orgNum, req.ledgerUser, [req.query.ledgerId, fiId])
         .then(result => {
             if (result) {
-                return res.json({ message: `Financial Institution ${req.query.fiId} removed by ${req.cookies.ledgerId}` });
+                return res.json({ message: `Financial Institution ${fiId} removed by ${req.cookies.ledgerId}` });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -85,9 +90,8 @@ exports.remove = async (req, res) => {
 };
 
 exports.getApprovedFis = async (req, res) => {
-    // TODO Use cookies
     networkConnection
-        .evaluateTransaction('getRelationByClient', req.orgNum, req.ledgerUser, [req.query.ledgerId])
+        .evaluateTransaction('getRelationByClient', req.orgNum, req.ledgerUser, [req.cookies.ledgerId])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
