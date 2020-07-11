@@ -6,7 +6,7 @@ import { Flex, Box, Card, Heading, Text, Form, Field, Button, Loader } from 'rim
 import qs from 'qs';
 import axios from 'axios';
 
-import apiWithCredentials from '../../service/apiWithCredentials';
+import api from '../../service/api';
 import UserData from '../../components/UserData';
 import { setUserData } from '../../functions/setUserData';
 
@@ -28,8 +28,8 @@ const Client = () => {
     useEffect(() => {
         try {
             axios.all([
-                apiWithCredentials.get('/client/getClientData'),
-                apiWithCredentials.get('/client/getApprovedFis')
+                api.get('/client/getClientData'),
+                api.get('/client/getApprovedFis')
             ])
                 .then(axios.spread(
                     (clientData, approvedFis) => {
@@ -59,7 +59,7 @@ const Client = () => {
 
         if (isLoading) {
             try {
-                apiWithCredentials
+                api
                     .post('/client/approve', qs.stringify({ fiId }))
                     .then(res => {
                         if (res.status === 200) {

@@ -3,7 +3,9 @@ import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader } from 'rimble-ui';
 
-import apiWithoutCredentials from '../../service/apiWithoutCredentials';
+import qs from 'qs';
+
+import api from '../../service/api';
 
 const Login = () => {
 
@@ -54,8 +56,10 @@ const Login = () => {
     useEffect(() => {
         if (validated && isLoading) {
             try {
-                apiWithoutCredentials
-                    .post(`/${userType}/login`, { login, password, userType })
+                // apiWithoutCredentials
+                //     .post(`/${userType}/login`, { login, password, userType })
+                api
+                    .post(`/${userType}/login`, qs.stringify({ login, password, userType }))
                     .then(res => {
                         if (res.status === 200) {
                             setCookie('userJWT', res.data.userJWT);

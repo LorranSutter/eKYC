@@ -5,7 +5,7 @@ import { Flex, Box, Card, Heading, Form, Text, Button, Loader } from 'rimble-ui'
 
 import axios from 'axios';
 
-import apiWithCredentials from '../../service/apiWithCredentials';
+import api from '../../service/api';
 import UserData from '../../components/UserData';
 import { setUserData } from '../../functions/setUserData';
 
@@ -37,8 +37,8 @@ const Fi = () => {
     useEffect(() => {
         try {
             axios.all([
-                apiWithCredentials.get('/fi/getFiData'),
-                apiWithCredentials.get('/fi/getApprovedClients')
+                api.get('/fi/getFiData'),
+                api.get('/fi/getApprovedClients')
             ])
                 .then(axios.spread(
                     (fiData, approvedClients) => {
