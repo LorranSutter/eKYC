@@ -12,7 +12,7 @@
     {
         "name": "user02",
         "dateOfBirth": "1991-11-19",
-        "address": "Missisauga, ON - Canada",
+        "address": "Mississauga, ON - Canada",
         "idNumber": "839047",
         "whoRegistered": {
             "orgNum": 2,

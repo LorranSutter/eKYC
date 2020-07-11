@@ -57,7 +57,6 @@ exports.approve = async (req, res) => {
 
     const { fiId } = req.body;
 
-    // TODO Use cookies
     networkConnection
         .submitTransaction('approve', req.orgNum, req.ledgerUser, [req.cookies.ledgerId, fiId])
         .then(result => {
@@ -75,9 +74,12 @@ exports.remove = async (req, res) => {
 
     const { fiId } = req.body;
 
-    // TODO Use cookies
+    if (req.ledgerUser === fiId) {
+        return res.status(202).json({ message: 'Cannot remove who registered you' });
+    }
+
     networkConnection
-        .submitTransaction('remove', req.orgNum, req.ledgerUser, [req.query.ledgerId, fiId])
+        .submitTransaction('remove', req.orgNum, req.ledgerUser, [req.cookies.ledgerId, fiId])
         .then(result => {
             if (result) {
                 return res.json({ message: `Financial Institution ${fiId} removed by ${req.cookies.ledgerId}` });

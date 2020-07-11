@@ -26,10 +26,18 @@ class eKYC extends Contract {
         const fis = initialFIData;
 
         for (const client of clients) {
+            const newClientId = 'CLIENT' + this.nextClientId;
+            const whoRegistered = client.whoRegistered.ledgerUser;
+
             client.docType = 'client';
-            await ctx.stub.putState('CLIENT' + this.nextClientId, Buffer.from(JSON.stringify(client)));
+            await ctx.stub.putState(newClientId, Buffer.from(JSON.stringify(client)));
             console.info('Added <--> ', client);
             this.nextClientId++;
+
+            const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [newClientId, whoRegistered]);
+            const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [whoRegistered, newClientId]);
+            await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
+            await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
         }
 
         for (const fi of fis) {
@@ -105,67 +113,11 @@ class eKYC extends Contract {
         this.nextClientId++;
 
         await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
+        await this.approve(ctx, newId, callerId);
         console.info('============= END : Create client ===========');
 
         return newId;
     }
-
-    // /**
-    //  *
-    //  * @param {Context} ctx
-    //  * @param {object} fiData
-    //  * @dev create a new financial institution
-    //  * @returns {string} new financial institution ID
-    //  */
-    // async createFinancialInstitution(ctx, fiData) {
-    //     console.info('============= START : Create financial institution ===========');
-
-    //     const fi = {
-    //         docType: 'fi',
-    //         ...JSON.parse(fiData)
-    //     };
-
-    //     const newId = 'FI' + this.nextFiId;
-    //     this.nextFiId++;
-
-    //     await ctx.stub.putState(newId, Buffer.from(JSON.stringify(fi)));
-    //     console.info('============= END : Create financial institution ===========');
-
-    //     return newId;
-    // }
-
-    // /**
-    //  *
-    //  * @private
-    //  * @param {Context} ctx
-    //  * @param {string} clientId
-    //  * @param {Array} fields
-    //  * @dev get specified fields of client data
-    //  * @returns {object} client data as an object
-    //  */
-    // async getClientData(ctx, clientId, fields) {
-
-    //     console.log(this.getCallerId(ctx));
-
-    //     const clientAsBytes = await ctx.stub.getState(clientId);
-    //     if (!clientAsBytes || clientAsBytes.length === 0) {
-    //         return null;
-    //     }
-
-    //     if (fields) {
-    //         fields = fields.split(',');
-    //         const clientAsJson = JSON.parse(clientAsBytes.toString());
-
-    //         let result = {};
-    //         for (const field of fields) {
-    //             if (clientAsJson.hasOwnProperty(field)) {
-    //                 result[field] = clientAsJson[field];
-    //             }
-    //         }
-    //         return result;
-    //     }
-    //     return clientAsBytes;
-    // }
 
     /**
      *
@@ -238,18 +190,13 @@ class eKYC extends Contract {
         console.info('======== START : Approve financial institution for client data access ==========');
 
         const res = await this.isWhoRegistered(ctx, clientId);
-        console.log(res);
-        console.log(typeof res);
 
         if (!res) {
-            console.log('here');
             return false;
         }
 
         const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId, fiId]);
         const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [fiId, clientId]);
-        console.log(clientFiIndexKey);
-        console.log(fiClientIndexKey);
 
         if (!clientFiIndexKey) {
             throw new Error('Composite key: clientFiIndexKey is null');
@@ -259,10 +206,8 @@ class eKYC extends Contract {
             throw new Error('Composite key: fiClientIndexKey is null');
         }
 
-        console.log('After throws');
         await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
         await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
-        console.log('After put State');
         console.info('======== END : Approve financial institution for client data access =========');
 
         return true;
@@ -332,14 +277,12 @@ class eKYC extends Contract {
      * @returns {Array} list of approved FIs
      */
     async getRelationByClient(ctx, clientId) {
-
         if (!this.isWhoRegistered(ctx, clientId)) {
             return null;
         }
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId]);
         const result = await this.getRelationsArray(ctx, relationResultsIterator);
-        console.log(result);
 
         return result;
     }
@@ -351,7 +294,6 @@ class eKYC extends Contract {
      * @returns {Array} list of clients who approved FI
      */
     async getRelationByFi(ctx) {
-
         const callerID = this.getCallerId(ctx);
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [callerID]);
