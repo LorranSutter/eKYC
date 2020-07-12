@@ -7,9 +7,7 @@
 </p>
 
 <p align="center">
-  
-  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1593367650/eKYC/State_diagram.png"/>
-  
+   For architecture, flow diagrams and more detailed explanation, please check <a href='Project%20Documents/Architecture%20Design%20%26%20Governance%20Document%20-%20eKYC%20-%20dAPP%201.pdf'>Project Documents</a> folder.
 </p>
 
 <p align="center">
@@ -19,6 +17,12 @@
     <a href="https://github.com/pumpin100">Raymond Lawal</a>&nbsp;|&nbsp;
     <a href="https://github.com/mascarenhaswanja">Wanja Mascarenhas</a>&nbsp;|&nbsp;
     <a href="https://github.com/DeadPreZ-101">Zakariya Jasat</a>
+</p>
+
+<p align="center">
+  
+  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1594526127/eKYC/eKYC-1.0.gif" height=400/>
+  
 </p>
 
 ## :runner: How to run
