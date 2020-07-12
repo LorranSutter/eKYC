@@ -13,7 +13,10 @@ router.post('/createClient',
     credentials.getOrgCredentials,
     financialInsitutionController.createClient);
 
-router.post('/login', fiValidator.login, validate, financialInsitutionController.login);
+router.post('/login',
+    fiValidator.login,
+    validate,
+    financialInsitutionController.login);
 
 router.get('/getClientData',
     checkLogin,
