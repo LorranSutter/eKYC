@@ -170,10 +170,15 @@ cd ..
 ./networkDown.sh
 ```
 
-<!-- #### Login credentials
+#### Login credentials
 
-* username: distributor
-* password: 123456 -->
+Client
+* login: JonasKahnwald / MarthaNielsen / ClaudiaTiedemann / ElisabethDoppler / H.G.Tannhaus
+* password: 123456
+
+Financial Institution
+* login: FinancialInstitution0 / FinancialInstitution1 / FinancialInstitution2
+* password: 123456
 
 ## :book: Resources and technologies :computer:
 
