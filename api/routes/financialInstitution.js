@@ -18,6 +18,11 @@ router.post('/login',
     validate,
     financialInsitutionController.login);
 
+router.get('/getFiData',
+    checkLogin,
+    credentials.getOrgCredentials,
+    financialInsitutionController.getFiData);
+
 router.get('/getClientData',
     checkLogin,
     credentials.getOrgCredentials,
@@ -27,10 +32,5 @@ router.get('/getApprovedClients',
     checkLogin,
     credentials.getOrgCredentials,
     financialInsitutionController.getApprovedClients);
-
-router.get('/getFiData',
-    checkLogin,
-    credentials.getOrgCredentials,
-    financialInsitutionController.getFiData);
 
 module.exports = router;
