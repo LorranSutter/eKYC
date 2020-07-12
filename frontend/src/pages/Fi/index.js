@@ -37,8 +37,8 @@ const Fi = () => {
     useEffect(() => {
         try {
             axios.all([
-                api.get('/fi/getFiData', { withCredentials: true }),
-                api.get('/fi/getApprovedClients', { withCredentials: true })
+                api.get('/fi/getFiData'),
+                api.get('/fi/getApprovedClients')
             ])
                 .then(axios.spread(
                     (fiData, approvedClients) => {
@@ -71,8 +71,7 @@ const Fi = () => {
         if (isLoading) {
             try {
                 api
-                    .get(`/fi/getClientDataByFI`, {
-                        withCredentials: true,
+                    .get('/fi/getClientData', {
                         params: {
                             clientId: clientId,
                             fields: [...clientFields]
@@ -109,20 +108,29 @@ const Fi = () => {
         setIsLoading(true);
     };
 
+    const handleClickNewClient = e => {
+        e.preventDefault();
+        setIsLoading(true);
+        history.push('/fi/newClient');
+    };
+
     function handleClickLogout() {
         removeCookie('userJWT');
         removeCookie('ledgerId');
+        removeCookie('whoRegistered');
+        removeCookie('orgCredentials');
         history.push('/login');
     }
 
     return (
         <Flex minWidth={380}>
-            <Box mx={'auto'} width={10 / 12}>
+            <Box mx={'auto'} width={[1, 11 / 12, 10 / 12]}>
                 <Flex px={2} mx={'auto'} justifyContent='space-between'>
                     <Box my={'auto'}>
                         <Heading as={'h1'} color='primary'>eKYC</Heading>
                     </Box>
                     <Box my={'auto'}>
+                        <Button mr={2} onClick={handleClickNewClient}>New Client</Button>
                         <Button onClick={handleClickLogout}>Logout</Button>
                     </Box>
                 </Flex>

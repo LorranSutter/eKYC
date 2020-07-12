@@ -1,7 +1,5 @@
 const { Contract } = require('fabric-contract-api');
-// TODO maybe use shim to return success messages
-// Example: return shim.success(Buffer.from('saveData Successful!'));
-// const shim = require('fabric-shim');
+const ClientIdentity = require('fabric-shim').ClientIdentity;
 
 const initialClientData = require('../data/initialClientData.json');
 const initialFIData = require('../data/initialFIData.json');
@@ -10,8 +8,8 @@ class eKYC extends Contract {
 
     constructor() {
         super();
-        this.nextClientId = 0;
-        this.nextFiId = 0;
+        this.nextClientId = 1;
+        this.nextFiId = 1;
     }
 
     /**
@@ -25,10 +23,19 @@ class eKYC extends Contract {
         const fis = initialFIData;
 
         for (const client of clients) {
+            const newClientId = 'CLIENT' + this.nextClientId;
+            const whoRegistered = client.whoRegistered.ledgerUser;
+
             client.docType = 'client';
-            await ctx.stub.putState('CLIENT' + this.nextClientId, Buffer.from(JSON.stringify(client)));
+            await ctx.stub.putState(newClientId, Buffer.from(JSON.stringify(client)));
             console.info('Added <--> ', client);
             this.nextClientId++;
+
+            // Include who registered the client in the list of FI approved
+            const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [newClientId, whoRegistered]);
+            const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [whoRegistered, newClientId]);
+            await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
+            await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
         }
 
         for (const fi of fis) {
@@ -43,6 +50,39 @@ class eKYC extends Contract {
 
     /**
      *
+     * @private
+     * @param {Context} ctx
+     * @dev extracting the CA ID
+     * @returns {string} CA ID
+     */
+    getCallerId(ctx) {
+        const cid = new ClientIdentity(ctx.stub);
+        const idString = cid.getID();
+        const idParams = idString.toString().split('::');
+        return idParams[1].split('CN=')[1];
+    }
+
+    /**
+     *
+     * @private
+     * @param {Context} ctx
+     * @param {string} clientId
+     * @dev tell if the caller is who registered client parameter
+     * @returns {boolean} is who registered or not, return null if client does not exists or does not have data
+     */
+    async isWhoRegistered(ctx, clientId) {
+        const clientAsBytes = await ctx.stub.getState(clientId);
+        if (!clientAsBytes || clientAsBytes.length === 0) {
+            return null;
+        }
+        const clientData = JSON.parse(clientAsBytes.toString());
+        const callerId = this.getCallerId(ctx);
+
+        return clientData.whoRegistered.ledgerUser === callerId;
+    }
+
+    /**
+     *
      * @param {Context} ctx
      * @param {object} clientData
      * @dev create a new client
@@ -51,40 +91,30 @@ class eKYC extends Contract {
     async createClient(ctx, clientData) {
         console.info('============= START : Create client ===========');
 
+        clientData = JSON.parse(clientData);
+        const callerId = this.getCallerId(ctx);
+
+        if (clientData.whoRegistered.ledgerUser !== callerId) {
+            return null;
+        }
+
         const client = {
             docType: 'client',
-            ...JSON.parse(clientData)
+            ...clientData
         };
 
         const newId = 'CLIENT' + this.nextClientId;
         this.nextClientId++;
 
         await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
+
+        // Include who registered the client in the list of FI approved
+        const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [newId, callerId]);
+        const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [callerId, newId]);
+        await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
+        await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
+
         console.info('============= END : Create client ===========');
-
-        return newId;
-    }
-
-    /**
-     *
-     * @param {Context} ctx
-     * @param {object} fiData
-     * @dev create a new financial institution
-     * @returns {string} new financial institution ID
-     */
-    async createFinancialInstitution(ctx, fiData) {
-        console.info('============= START : Create financial institution ===========');
-
-        const fi = {
-            docType: 'fi',
-            ...JSON.parse(fiData)
-        };
-
-        const newId = 'FI' + this.nextFiId;
-        this.nextFiId++;
-
-        await ctx.stub.putState(newId, Buffer.from(JSON.stringify(fi)));
-        console.info('============= END : Create financial institution ===========');
 
         return newId;
     }
@@ -94,7 +124,7 @@ class eKYC extends Contract {
      * @param {Context} ctx
      * @param {string} clientId
      * @param {Array} fields
-     * @dev get specified fields of client data
+     * @dev get specified fields of client data when called by an FI
      * @returns {object} client data as an object
      */
     async getClientData(ctx, clientId, fields) {
@@ -104,52 +134,46 @@ class eKYC extends Contract {
             return null;
         }
 
-        if (fields) {
-            fields = fields.split(',');
-            const clientAsJson = JSON.parse(clientAsBytes.toString());
+        const clientData = JSON.parse(clientAsBytes.toString());
+        const callerId = this.getCallerId(ctx);
 
-            let result = {};
-            for (const field of fields) {
-                if (clientAsJson.hasOwnProperty(field)) {
-                    result[field] = clientAsJson[field];
-                }
+        // Check caller is who registered
+        if (clientData.whoRegistered.ledgerUser !== callerId) {
+
+            // If caller is not who registered, check if caller is approved
+            const relations = await this.getRelationByFi(ctx, callerId);
+            if (!relations.includes(clientId)) {
+                return null;
             }
-            return result;
         }
-        return clientAsBytes;
+
+        // Get only requested fields
+        fields = fields.split(',').map(field => field.trim());
+
+        let result = {};
+        for (const field of fields) {
+            if (clientData.hasOwnProperty(field)) {
+                result[field] = clientData[field];
+            }
+        }
+        return result;
     }
 
     /**
      *
      * @param {Context} ctx
-     * @param {string} fiId
-     * @param {string} clientId
-     * @param {Array} fields
-     * @dev get specified fields of client data when called by an FI
-     * @returns {object} client data as an object
-     */
-    async getClientDataByFI(ctx, fiId, clientId, fields) {
-
-        const relations = await this.getRelationByFi(ctx, fiId);
-        if (!relations.includes(clientId)) {
-            return null;
-        }
-
-        return await this.getClientData(ctx, clientId, fields);
-    }
-
-    /**
-     *
-     * @param {Context} ctx
-     * @param {string} fiId
      * @dev get financial insitution data
      * @returns {object} FI data as an object
      */
-    async getFinancialInstitutionData(ctx, fiId) {
-        const fiAsBytes = await ctx.stub.getState(fiId);
+    async getFinancialInstitutionData(ctx) {
+
+        const callerId = this.getCallerId(ctx);
+
+        const fiAsBytes = await ctx.stub.getState(callerId);
         if (!fiAsBytes || fiAsBytes.length === 0) {
             return null;
         }
+
         return fiAsBytes.toString();
     }
 
@@ -159,9 +183,16 @@ class eKYC extends Contract {
      * @param {string} clientId
      * @param {string} fiId
      * @dev approve FI to access client data
+     * @returns {boolean} return true if approved
      */
     async approve(ctx, clientId, fiId) {
         console.info('======== START : Approve financial institution for client data access ==========');
+
+        const res = await this.isWhoRegistered(ctx, clientId);
+
+        if (!res) {
+            return false;
+        }
 
         const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [clientId, fiId]);
         const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [fiId, clientId]);
@@ -177,6 +208,8 @@ class eKYC extends Contract {
         await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
         await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
         console.info('======== END : Approve financial institution for client data access =========');
+
+        return true;
     }
 
     /**
@@ -185,9 +218,14 @@ class eKYC extends Contract {
      * @param {string} clientId
      * @param {Array} fields
      * @dev remove FI access data approval
+     * @returns {boolean} return true if removed
      */
     async remove(ctx, clientId, fiId) {
         console.info('======== START : Remove financial institution for client data access ==========');
+
+        if (!this.isWhoRegistered(ctx, clientId)) {
+            return false;
+        }
 
         const clientFiIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId, fiId]);
         const clientFiResult = await clientFiIterator.next();
@@ -202,6 +240,8 @@ class eKYC extends Contract {
         }
 
         console.info('======== END : Remove financial institution for client data access =========');
+
+        return true;
     }
 
     /**
@@ -225,7 +265,6 @@ class eKYC extends Contract {
             const { attributes } = await ctx.stub.splitCompositeKey(responseRange.value.key);
 
             relationsArray.push(attributes[1]);
-
         }
     }
 
@@ -237,24 +276,29 @@ class eKYC extends Contract {
      * @returns {Array} list of approved FIs
      */
     async getRelationByClient(ctx, clientId) {
+        if (!this.isWhoRegistered(ctx, clientId)) {
+            return null;
+        }
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('clientId~fiId', [clientId]);
+        const result = await this.getRelationsArray(ctx, relationResultsIterator);
 
-        return await this.getRelationsArray(ctx, relationResultsIterator);
+        return result;
     }
 
     /**
      *
      * @param {Context} ctx
-     * @param {string} fiId
      * @dev get a list of clients who approved the caller FI
      * @returns {Array} list of clients who approved FI
      */
-    async getRelationByFi(ctx, fiId) {
+    async getRelationByFi(ctx) {
+        const callerID = this.getCallerId(ctx);
 
-        const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [fiId]);
+        const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [callerID]);
+        const result = await this.getRelationsArray(ctx, relationResultsIterator);
 
-        return await this.getRelationsArray(ctx, relationResultsIterator);
+        return result;
     }
 
     /**

@@ -5,17 +5,33 @@ const clientController = require('../controllers/clientController');
 const { checkLogin } = require('../middleware/auth');
 const clientValidator = require('../middleware/clientValidator');
 const { validate } = require('../middleware/validate');
-
-router.post('/create', clientValidator.registration, validate, clientController.create);
+const credentials = require('../middleware/credentials');
 
 router.post('/login', clientValidator.login, validate, clientController.login);
 
-router.get('/getClientData', checkLogin, clientController.getClientData);
+router.get('/getClientData',
+    checkLogin,
+    credentials.getWhoRegistered,
+    clientController.getClientData);
 
-router.get('/approve', checkLogin, clientController.approve);
+router.get('/approve',
+    checkLogin,
+    credentials.getWhoRegistered,
+    clientController.approve);
 
-router.get('/remove', checkLogin, clientController.remove);
+router.post('/approve',
+    checkLogin,
+    credentials.getWhoRegistered,
+    clientController.approve);
 
-router.get('/getApprovedFis', checkLogin, clientController.getApprovedFis);
+router.post('/remove',
+    checkLogin,
+    credentials.getWhoRegistered,
+    clientController.remove);
+
+router.get('/getApprovedFis',
+    checkLogin,
+    credentials.getWhoRegistered,
+    clientController.getApprovedFis);
 
 module.exports = router;

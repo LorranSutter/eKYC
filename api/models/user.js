@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const crypt = require('../functions/crypt');
+
 const saltRounds = 10;
 const Schema = mongoose.Schema;
 
@@ -22,15 +24,30 @@ const UserSchema = Schema(
         ledgerId: {
             type: String,
             required: true
+        },
+        whoRegistered: {
+            type: String,
+        },
+        orgCredentials: {
+            type: String
         }
     }
 );
 
 UserSchema.pre('save', function (next) {
     // Check if document is new or a new password has been set
-    if (this.isNew || this.isModified('password')) {
+    if (this.isNew || this.isModified('password') || this.isModified('whoRegistered') || this.isModified('orgCredentials')) {
         // Saving reference to this because of changing scopes
         const document = this;
+
+        if (this.isModified('whoRegistered')) {
+            document.whoRegistered = crypt.encrypt(document.whoRegistered);
+        }
+
+        if (this.isModified('orgCredentials')) {
+            document.orgCredentials = crypt.encrypt(document.orgCredentials);
+        }
+
         bcrypt.hash(document.password, saltRounds,
             function (err, hashedPassword) {
                 if (err) {

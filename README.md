@@ -21,7 +21,8 @@
 
 <p align="center">
   
-  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1594526127/eKYC/eKYC-1.0.gif" height=400/>
+  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1594527234/eKYC/eKYC-2.0_1.gif" height=400/>
+  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1594528007/eKYC/eKYC-2.0_2.gif" height=400/>
   
 </p>
 
@@ -66,13 +67,14 @@ git clone https://github.com/LorranSutter/eKYC.git
 cd eKYC
 ```
 
-To run the application you will need to set your own configurations of _port_, _database_ and _private key_. Create the following .env file in the indicated path and format with your customized configurations:
+To run the application you will need to set your own configurations of _port_, _database_, _private key_ and _encryption key_. Create the following .env file in the indicated path and format with your customized configurations:
 
 ``` json
 // ./.env
 
 PORT_API=5000
-PRIVATE_KEY="YOUR_STRONG_PRIVATE_KEY"
+PRIVATE_KEY="54AD766F231CCB0EA64156F1E5488"
+ENCRYPTION_KEY="CoCKidLqlVuB8y1EYmKaye1UGoxtHmko1LmyqOHvVht="
 MONGODB_URI_DEV="YOUR_DEV_MONGO_URI"
 ```
 
@@ -173,11 +175,11 @@ cd ..
 #### Login credentials
 
 Client
-* login: JonasKahnwald / MarthaNielsen / ClaudiaTiedemann / ElisabethDoppler / H.G.Tannhaus
+* login: user01, user02, JonasKahnwald / MarthaNielsen / ClaudiaTiedemann / ElisabethDoppler / H.G.Tannhaus
 * password: 123456
 
 Financial Institution
-* login: FinancialInstitution0 / FinancialInstitution1 / FinancialInstitution2
+* login: FI1 / FI2
 * password: 123456
 
 ## :book: Resources and technologies :computer:

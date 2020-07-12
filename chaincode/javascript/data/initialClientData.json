@@ -1,32 +1,72 @@
 [
     {
+        "name": "user01",
+        "dateOfBirth": "1987-03-10",
+        "address": "Toronto, ON - Canada",
+        "idNumber": "873451",
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
+    },
+    {
+        "name": "user02",
+        "dateOfBirth": "1991-11-19",
+        "address": "Mississauga, ON - Canada",
+        "idNumber": "839047",
+        "whoRegistered": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
+    },
+    {
         "name": "Jonas Kahnwald",
-        "dateOfBirth": "01-07-2002",
+        "dateOfBirth": "2002-07-01",
         "address": "Winden",
-        "idNumber": "123456"
+        "idNumber": "123456",
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "Martha Nielsen",
-        "dateOfBirth": "05-04-2002",
+        "dateOfBirth": "2002-04-05",
         "address": "Winden",
-        "idNumber": "123123"
+        "idNumber": "123123",
+        "whoRegistered": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
     },
     {
         "name": "Claudia Tiedemann",
-        "dateOfBirth": "17-10-1942",
+        "dateOfBirth": "1942-10-17",
         "address": "Winden",
-        "idNumber": "123321"
+        "idNumber": "123321",
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "Elisabeth Doppler",
-        "dateOfBirth": "21-12-2011",
+        "dateOfBirth": "2011-12-21",
         "address": "Winden",
-        "idNumber": "654321"
+        "idNumber": "654321",
+        "whoRegistered": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
         "name": "H.G. Tannhaus",
-        "dateOfBirth": "07-11-1923",
+        "dateOfBirth": "1923-11-07",
         "address": "Winden",
-        "idNumber": "654123"
+        "idNumber": "654123",
+        "whoRegistered": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
     }
 ]

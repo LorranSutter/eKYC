@@ -5,17 +5,23 @@ const User = require('../models/user');
 const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
 
-exports.create = (req, res) => {
+exports.createClient = (req, res) => {
 
-    const { login, password, name, idNumber } = req.body;
-    const fiData = JSON.stringify({ name, idNumber });
+    const orgNum = req.orgNum;
+    const ledgerUser = req.ledgerUser;
+
+    const { login, password, name, dateOfBirth, address, idNumber } = req.body;
+    const clientData = JSON.stringify({ name, dateOfBirth, address, idNumber, whoRegistered: { orgNum, ledgerUser } });
 
     networkConnection
-        .submitTransaction('createFinancialInstitution', [fiData])
+        .submitTransaction('createClient', orgNum, ledgerUser, [clientData])
         .then(async result => {
             if (result) {
-                await io.userCreate(login, password, 'fi', result.toString());
-                return res.json({ result: 'Financial institution created', ledgerId: result.toString() });
+                result = result.toString();
+                if (result.length > 0) {
+                    await io.clientCreate(login, password, result, JSON.stringify({ orgNum, ledgerUser }));
+                    return res.json({ message: `New client ${result} created`, ledgerId: result });
+                }
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -32,12 +38,14 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid login/password' });
     }
 
-    const fi = await User.findOne({ login });
+    const fi = await User.findOne({
+        $and:
+            [
+                { login },
+                { userType }
+            ]
+    });
     if (!fi) {
-        return res.status(401).json({ message: 'Invalid login' });
-    }
-
-    if (fi.userType !== userType) {
         return res.status(401).json({ message: 'Invalid login' });
     }
 
@@ -48,12 +56,12 @@ exports.login = async (req, res) => {
 
     const userJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
 
-    return res.json({ userJWT, ledgerId: fi.ledgerId });
+    return res.json({ userJWT, orgCredentials: fi.orgCredentials });
 };
 
 exports.getFiData = (req, res) => {
     networkConnection
-        .evaluateTransaction('getFinancialInstitutionData', [req.cookies.ledgerId])
+        .evaluateTransaction('getFinancialInstitutionData', req.orgNum, req.ledgerUser)
         .then(result => {
             if (result) {
                 if (result.length > 0) {
@@ -68,12 +76,12 @@ exports.getFiData = (req, res) => {
         });
 };
 
-exports.getClientDataByFI = (req, res) => {
+exports.getClientData = (req, res) => {
 
     const { clientId, fields } = req.query;
 
     networkConnection
-        .evaluateTransaction('getClientDataByFI', [req.cookies.ledgerId, clientId, fields || []])
+        .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [clientId, fields || []])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
@@ -90,7 +98,7 @@ exports.getClientDataByFI = (req, res) => {
 
 exports.getApprovedClients = async (req, res) => {
     networkConnection
-        .evaluateTransaction('getRelationByFi', [req.cookies.ledgerId])
+        .evaluateTransaction('getRelationByFi', req.orgNum, req.ledgerUser)
         .then(result => {
             if (result) {
                 if (result.length > 0) {

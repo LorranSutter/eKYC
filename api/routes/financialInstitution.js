@@ -5,15 +5,29 @@ const financialInsitutionController = require('../controllers/financialInsitutio
 const { checkLogin } = require('../middleware/auth');
 const fiValidator = require('../middleware/fiValidator');
 const { validate } = require('../middleware/validate');
+const credentials = require('../middleware/credentials');
 
-router.post('/create', fiValidator.registration, validate, financialInsitutionController.create);
+router.post('/createClient',
+    fiValidator.registration,
+    validate,
+    credentials.getOrgCredentials,
+    financialInsitutionController.createClient);
 
 router.post('/login', fiValidator.login, validate, financialInsitutionController.login);
 
-router.get('/getClientDataByFI', checkLogin, financialInsitutionController.getClientDataByFI);
+router.get('/getClientData',
+    checkLogin,
+    credentials.getOrgCredentials,
+    financialInsitutionController.getClientData);
 
-router.get('/getApprovedClients', checkLogin, financialInsitutionController.getApprovedClients);
+router.get('/getApprovedClients',
+    checkLogin,
+    credentials.getOrgCredentials,
+    financialInsitutionController.getApprovedClients);
 
-router.get('/getFiData', checkLogin, financialInsitutionController.getFiData);
+router.get('/getFiData',
+    checkLogin,
+    credentials.getOrgCredentials,
+    financialInsitutionController.getFiData);
 
 module.exports = router;

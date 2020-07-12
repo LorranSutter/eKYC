@@ -13,40 +13,67 @@ const mongoURI = process.env.MONGODB_URI_DEV;
 
 InitiateMongoServer(mongoURI);
 
-function saveUser(user, cb) {
-    let currentLogin, currentUserType;
-
-    if (user.Key.match(/^CLIENT\d+$/)) {
-        currentLogin = user.Record.name.replace(/ /g,'');
-        currentUserType = 'client';
-    } else if (user.Key.match(/^FI\d+$/)) {
-        currentLogin = user.Record.name.replace(/ /g,'');
-        currentUserType = 'fi';
-    } else {
-        console.log(`Oooppss... this user is non-standard ${user}`);
-        return;
-    }
-
-    const newUser = new User({
-        login: currentLogin,
-        password: '123456',
-        userType: currentUserType,
-        ledgerId: user.Key
+function saveClient(login, password, ledgerId, whoRegistered, cb) {
+    const newClient = new User({
+        login,
+        password,
+        ledgerId,
+        whoRegistered: JSON.stringify(whoRegistered)
     });
 
-    newUser.save(function (err) {
+    newClient.save(function (err) {
         if (err) {
             console.log(err);
             return;
         }
-        console.log('New user: ' + newUser.login);
-        cb(null, newUser);
+        console.log('New client: ' + newClient.login);
+        cb(null, newClient);
     });
+}
+
+function saveFi(login, password, ledgerId, orgCredentials, cb) {
+    const newFi = new User({
+        login,
+        password,
+        userType: 'fi',
+        ledgerId,
+        orgCredentials: JSON.stringify(orgCredentials)
+    });
+
+    newFi.save(function (err) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log('New fi: ' + newFi.login);
+        cb(null, newFi);
+    });
+}
+
+function saveUser(user, cb) {
+    if (user.Key.match(/^CLIENT\d+$/)) {
+        saveClient(
+            user.Record.name.replace(/ /g, ''),
+            '123456',
+            user.Key,
+            user.Record.whoRegistered,
+            cb);
+    } else if (user.Key.match(/^FI\d+$/)) {
+        saveFi(
+            user.Record.name.replace(/ /g, ''),
+            '123456',
+            user.Key,
+            user.Record.orgCredentials,
+            cb);
+    } else {
+        console.log(`Oooppss... this user is non-standard ${user}`);
+        return;
+    }
 }
 
 function queryAllData(cb) {
     networkConnection
-        .evaluateTransaction('queryAllData')
+        .evaluateTransaction('queryAllData', process.argv[2], process.argv[3])
         .then(users => {
 
             users = JSON.parse(users);

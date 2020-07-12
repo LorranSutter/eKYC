@@ -2,27 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
-const io = require('../db/io');
 const networkConnection = require('../utils/networkConnection');
-
-exports.create = (req, res) => {
-
-    const { login, password, name, dateOfBirth, address, idNumber } = req.body;
-    const clientData = JSON.stringify({ name, dateOfBirth, address, idNumber });
-
-    networkConnection
-        .submitTransaction('createClient', [clientData])
-        .then(async result => {
-            if (result) {
-                await io.userCreate(login, password, 'client', result.toString());
-                return res.json({ result: 'Client created', ledgerId: result.toString() });
-            }
-            return res.status(500).json({ error: 'Something went wrong' });
-        })
-        .catch((err) => {
-            return res.status(500).json({ error: `Something went wrong\n ${err}` });
-        });
-};
 
 exports.login = async (req, res) => {
 
@@ -32,12 +12,14 @@ exports.login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid login/password' });
     }
 
-    const client = await User.findOne({ login });
+    const client = await User.findOne({
+        $and:
+            [
+                { login },
+                { userType }
+            ]
+    });
     if (!client) {
-        return res.status(401).json({ message: 'Invalid login' });
-    }
-
-    if(client.userType !== userType){
         return res.status(401).json({ message: 'Invalid login' });
     }
 
@@ -48,22 +30,19 @@ exports.login = async (req, res) => {
 
     const userJWT = jwt.sign({ login }, process.env.PRIVATE_KEY, { algorithm: 'HS256' });
 
-    return res.json({ userJWT, ledgerId: client.ledgerId });
+    return res.json({ userJWT, ledgerId: client.ledgerId, whoRegistered: client.whoRegistered });
 };
 
 exports.getClientData = (req, res) => {
 
-    const fields = req.body.fields || [];
+    const fields = ['name', 'address', 'dateOfBirth', 'idNumber', 'whoRegistered'];
 
     networkConnection
-        .evaluateTransaction('getClientData', [req.cookies.ledgerId, fields])
+        .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [req.cookies.ledgerId, fields || []])
         .then(result => {
             if (result) {
                 if (result.length > 0) {
-                    // FIXME Figure out a better way to parse client data
-                    let data = JSON.parse(result.toString()).data;
-                    data = JSON.parse(Buffer.from(data));
-                    return res.json({ clientData: data });
+                    return res.json({ clientData: JSON.parse(Buffer.from(result.toString())) });
                 }
                 return res.json({ clientData: result.toString() });
             }
@@ -75,11 +54,14 @@ exports.getClientData = (req, res) => {
 };
 
 exports.approve = async (req, res) => {
+
+    const { fiId } = req.body;
+
     networkConnection
-        .submitTransaction('approve', [req.cookies.ledgerId, req.query.fiId])
+        .submitTransaction('approve', req.orgNum, req.ledgerUser, [req.cookies.ledgerId, fiId])
         .then(result => {
             if (result) {
-                return res.json({ message: `Financial Institution ${req.query.fiId} approved by ${req.cookies.ledgerId}` });
+                return res.json({ message: `Financial Institution ${fiId} approved by ${req.cookies.ledgerId}` });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -89,13 +71,18 @@ exports.approve = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
+
+    const { fiId } = req.body;
+
+    if (req.ledgerUser === fiId) {
+        return res.status(202).json({ message: 'Cannot remove who registered you' });
+    }
+
     networkConnection
-        .submitTransaction('remove', [req.cookies.ledgerId, req.query.fiId])
+        .submitTransaction('remove', req.orgNum, req.ledgerUser, [req.cookies.ledgerId, fiId])
         .then(result => {
-            console.log(result);
             if (result) {
-                console.log(result);
-                return res.json({ message: `Financial Institution ${req.query.fiId} removed by ${req.cookies.ledgerId}` });
+                return res.json({ message: `Financial Institution ${fiId} removed by ${req.cookies.ledgerId}` });
             }
             return res.status(500).json({ error: 'Something went wrong' });
         })
@@ -106,7 +93,7 @@ exports.remove = async (req, res) => {
 
 exports.getApprovedFis = async (req, res) => {
     networkConnection
-        .evaluateTransaction('getRelationByClient', [req.cookies.ledgerId])
+        .evaluateTransaction('getRelationByClient', req.orgNum, req.ledgerUser, [req.cookies.ledgerId])
         .then(result => {
             if (result) {
                 if (result.length > 0) {

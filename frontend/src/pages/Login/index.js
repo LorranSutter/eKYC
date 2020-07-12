@@ -1,14 +1,17 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader } from 'rimble-ui';
+import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader, Image } from 'rimble-ui';
 
+import qs from 'qs';
+
+import logo from '../../assets/eKYC.svg';
 import api from '../../service/api';
 
 const Login = () => {
 
     const history = useHistory();
-    const [cookies, setCookie] = useCookies();
+    const [cookies, setCookie, removeCookie] = useCookies();
 
     const [validated, setValidated] = useState(false);
     const [login, setLogin] = useState("");
@@ -55,12 +58,21 @@ const Login = () => {
         if (validated && isLoading) {
             try {
                 api
-                    .post(`/${userType}/login`, { login, password, userType })
+                    .post(`/${userType}/login`, qs.stringify({ login, password, userType }))
                     .then(res => {
                         if (res.status === 200) {
+
+                            removeCookie('userJWT');
+                            removeCookie('ledgerId');
+                            removeCookie('whoRegistered');
+                            removeCookie('orgCredentials');
+
                             setCookie('userJWT', res.data.userJWT);
-                            setCookie('ledgerId', res.data.ledgerId);
+                            res.data.ledgerId && setCookie('ledgerId', res.data.ledgerId);
+                            res.data.whoRegistered && setCookie('whoRegistered', res.data.whoRegistered);
+                            res.data.orgCredentials && setCookie('orgCredentials', res.data.orgCredentials);
                             history.push(`/${userType}`);
+
                         } else {
                             console.log('Oopps... something wrong, status code ' + res.status);
                             return function cleanup() { }
@@ -92,7 +104,13 @@ const Login = () => {
         <Flex height={'100vh'}>
             <Box mx={'auto'} my={'auto'} width={[1, 1 / 2, 1 / 3, 1 / 4]}>
                 <Card>
-                    <Heading as={"h1"} mx={'auto'} color={'primary'}>eKYC</Heading>
+                    <Image
+                        alt="eKYC logo"
+                        height="130"
+                        width={1}
+                        src={logo}
+                    />
+                    <Heading as={'h1'} mt={1} mb={3} textAlign={'center'} color={'primary'}>eKYC</Heading>
                     <Form onSubmit={handleSubmit}>
                         <Flex mx={-3} flexWrap={"wrap"}>
                             <Box width={1} px={3}>
@@ -107,7 +125,7 @@ const Login = () => {
                                 </Field>
                             </Box>
                             <Box width={1} px={3}>
-                                <Field label="Passoword" width={1}>
+                                <Field label="Password" width={1}>
                                     <Form.Input
                                         type="password"
                                         required

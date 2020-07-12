@@ -1,14 +1,18 @@
 [
     {
-        "name": "Financial Institution 0",
-        "idNumber": "980237234"
+        "name": "FI1",
+        "idNumber": "980237234",
+        "orgCredentials": {
+            "orgNum": 1,
+            "ledgerUser": "FI1"
+        }
     },
     {
-        "name": "Financial Institution 1",
-        "idNumber": "123353257"
-    },
-    {
-        "name": "Financial Institution 2",
-        "idNumber": "238023512"
+        "name": "FI2",
+        "idNumber": "123353257",
+        "orgCredentials": {
+            "orgNum": 2,
+            "ledgerUser": "FI2"
+        }
     }
 ]
