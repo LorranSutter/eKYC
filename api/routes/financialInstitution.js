@@ -15,18 +15,18 @@ router.post('/createClient',
 
 router.post('/login', fiValidator.login, validate, financialInsitutionController.login);
 
-// TODO Restore checkLogin
 router.get('/getClientData',
+    checkLogin,
     credentials.getOrgCredentials,
     financialInsitutionController.getClientData);
 
-// TODO Restore checkLogin
 router.get('/getApprovedClients',
+    checkLogin,
     credentials.getOrgCredentials,
     financialInsitutionController.getApprovedClients);
 
-// TODO Restore checkLogin
 router.get('/getFiData',
+    checkLogin,
     credentials.getOrgCredentials,
     financialInsitutionController.getFiData);
 

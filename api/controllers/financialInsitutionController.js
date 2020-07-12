@@ -13,7 +13,6 @@ exports.createClient = (req, res) => {
     const { login, password, name, dateOfBirth, address, idNumber } = req.body;
     const clientData = JSON.stringify({ name, dateOfBirth, address, idNumber, whoRegistered: { orgNum, ledgerUser } });
 
-    // TODO Use cookies
     networkConnection
         .submitTransaction('createClient', orgNum, ledgerUser, [clientData])
         .then(async result => {
@@ -81,7 +80,6 @@ exports.getClientData = (req, res) => {
 
     const { clientId, fields } = req.query;
 
-    // TODO Use cookies
     networkConnection
         .evaluateTransaction('getClientData', req.orgNum, req.ledgerUser, [clientId, fields || []])
         .then(result => {

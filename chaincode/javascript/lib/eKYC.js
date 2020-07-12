@@ -31,6 +31,7 @@ class eKYC extends Contract {
             console.info('Added <--> ', client);
             this.nextClientId++;
 
+            // Include who registered the client in the list of FI approved
             const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [newClientId, whoRegistered]);
             const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [whoRegistered, newClientId]);
             await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
@@ -107,6 +108,7 @@ class eKYC extends Contract {
 
         await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
 
+        // Include who registered the client in the list of FI approved
         const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [newId, callerId]);
         const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [callerId, newId]);
         await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
