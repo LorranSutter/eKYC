@@ -7,9 +7,7 @@
 </p>
 
 <p align="center">
-  
-  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1593367650/eKYC/State_diagram.png"/>
-  
+   For architecture, flow diagrams and more detailed explanation, please check <a href='Project%20Documents/Architecture%20Design%20%26%20Governance%20Document%20-%20eKYC%20-%20dAPP%201.pdf'>Project Documents</a> folder.
 </p>
 
 <p align="center">
@@ -19,6 +17,13 @@
     <a href="https://github.com/pumpin100">Raymond Lawal</a>&nbsp;|&nbsp;
     <a href="https://github.com/mascarenhaswanja">Wanja Mascarenhas</a>&nbsp;|&nbsp;
     <a href="https://github.com/DeadPreZ-101">Zakariya Jasat</a>
+</p>
+
+<p align="center">
+  
+  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1594527234/eKYC/eKYC-2.0_1.gif" height=400/>
+  <img src="https://res.cloudinary.com/lorransutter/image/upload/v1594528007/eKYC/eKYC-2.0_2.gif" height=400/>
+  
 </p>
 
 ## :runner: How to run
@@ -62,13 +67,14 @@ git clone https://github.com/LorranSutter/eKYC.git
 cd eKYC
 ```
 
-To run the application you will need to set your own configurations of _port_, _database_ and _private key_. Create the following .env file in the indicated path and format with your customized configurations:
+To run the application you will need to set your own configurations of _port_, _database_, _private key_ and _encryption key_. Create the following .env file in the indicated path and format with your customized configurations:
 
 ``` json
 // ./.env
 
 PORT_API=5000
-PRIVATE_KEY="YOUR_STRONG_PRIVATE_KEY"
+PRIVATE_KEY="54AD766F231CCB0EA64156F1E5488"
+ENCRYPTION_KEY="CoCKidLqlVuB8y1EYmKaye1UGoxtHmko1LmyqOHvVht="
 MONGODB_URI_DEV="YOUR_DEV_MONGO_URI"
 ```
 
@@ -166,10 +172,15 @@ cd ..
 ./networkDown.sh
 ```
 
-<!-- #### Login credentials
+#### Login credentials
 
-* username: distributor
-* password: 123456 -->
+Client
+* login: user01, user02, JonasKahnwald / MarthaNielsen / ClaudiaTiedemann / ElisabethDoppler / H.G.Tannhaus
+* password: 123456
+
+Financial Institution
+* login: FI1 / FI2
+* password: 123456
 
 ## :book: Resources and technologies :computer:
 
