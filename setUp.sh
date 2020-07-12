@@ -37,39 +37,5 @@ popd
 pushd ./api/utils
 node enrollAdmin.js 1 admin
 node registerUser.js 1 admin appUser
-# node invoke.js
-# node query.js
-# node populate.js
+node populate.js 1 appUser
 popd
-
-# cat <<EOF
-
-# Total setup execution time : $(($(date +%s) - starttime)) secs ...
-
-# Next, use the eKYC applications to interact with the deployed eKYC contract.
-# The eKYC applications are available in multiple programming languages.
-# Follow the instructions for the programming language of your choice:
-
-# JavaScript:
-
-#   Start by changing into the "api" directory:
-#     cd api
-
-#   Next, install all required packages:
-#     npm install
-
-#   Then run the following applications to enroll the admin user, and register a new user
-#   called appUser which will be used by the other applications to interact with the deployed
-#   eKYC contract:
-#     node enrollAdmin
-#     node registerUser
-
-#   You can run the invoke application as follows. By default, the invoke application will
-#   create a new car, but you can update the application to submit other transactions:
-#     node invoke
-
-#   You can run the query application as follows. By default, the query application will
-#   return all cars, but you can update the application to evaluate other transactions:
-#     node query
-
-# EOF
