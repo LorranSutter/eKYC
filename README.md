@@ -175,7 +175,7 @@ cd ..
 #### Login credentials
 
 Client
-* login: user01, user02, JonasKahnwald / MarthaNielsen / ClaudiaTiedemann / ElisabethDoppler / H.G.Tannhaus
+* login: user01 / user02 / JonasKahnwald / MarthaNielsen / ClaudiaTiedemann / ElisabethDoppler / H.G.Tannhaus
 * password: 123456
 
 Financial Institution
