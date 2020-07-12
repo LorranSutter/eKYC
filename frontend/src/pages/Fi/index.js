@@ -108,6 +108,12 @@ const Fi = () => {
         setIsLoading(true);
     };
 
+    const handleClickNewClient = e => {
+        e.preventDefault();
+        setIsLoading(true);
+        history.push('/fi/newClient');
+    };
+
     function handleClickLogout() {
         removeCookie('userJWT');
         removeCookie('ledgerId');
@@ -124,7 +130,7 @@ const Fi = () => {
                         <Heading as={'h1'} color='primary'>eKYC</Heading>
                     </Box>
                     <Box my={'auto'}>
-                        <Button mr={2} onClick={handleClickLogout}>New Client</Button>
+                        <Button mr={2} onClick={handleClickNewClient}>New Client</Button>
                         <Button onClick={handleClickLogout}>Logout</Button>
                     </Box>
                 </Flex>

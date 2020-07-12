@@ -20,8 +20,8 @@ exports.createClient = (req, res) => {
             if (result) {
                 result = result.toString();
                 if (result.length > 0) {
-                    await io.clientCreate(login, password, result, JSON.stringify({ whoRegistered: { orgNum, ledgerUser } }));
-                    return res.json({ result: 'Client created', ledgerId: result });
+                    await io.clientCreate(login, password, result, JSON.stringify({ orgNum, ledgerUser }));
+                    return res.json({ message: `New client ${result} created`, ledgerId: result });
                 }
             }
             return res.status(500).json({ error: 'Something went wrong' });

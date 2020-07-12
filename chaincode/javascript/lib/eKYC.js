@@ -1,8 +1,5 @@
 const { Contract } = require('fabric-contract-api');
 const ClientIdentity = require('fabric-shim').ClientIdentity;
-// TODO maybe use shim to return success messages
-// Example: return shim.success(Buffer.from('saveData Successful!'));
-// const shim = require('fabric-shim');
 
 const initialClientData = require('../data/initialClientData.json');
 const initialFIData = require('../data/initialFIData.json');
@@ -79,10 +76,6 @@ class eKYC extends Contract {
         }
         const clientData = JSON.parse(clientAsBytes.toString());
         const callerId = this.getCallerId(ctx);
-        console.log('isWhoRegistered');
-        console.log(callerId);
-        console.log(clientData.whoRegistered.ledgerUser);
-        console.log(clientData.whoRegistered.ledgerUser === callerId);
 
         return clientData.whoRegistered.ledgerUser === callerId;
     }
@@ -113,7 +106,12 @@ class eKYC extends Contract {
         this.nextClientId++;
 
         await ctx.stub.putState(newId, Buffer.from(JSON.stringify(client)));
-        await this.approve(ctx, newId, callerId);
+
+        const clientFiIndexKey = await ctx.stub.createCompositeKey('clientId~fiId', [newId, callerId]);
+        const fiClientIndexKey = await ctx.stub.createCompositeKey('fiId~clientId', [callerId, newId]);
+        await ctx.stub.putState(clientFiIndexKey, Buffer.from('\u0000'));
+        await ctx.stub.putState(fiClientIndexKey, Buffer.from('\u0000'));
+
         console.info('============= END : Create client ===========');
 
         return newId;
@@ -142,7 +140,6 @@ class eKYC extends Contract {
 
             // If caller is not who registered, check if caller is approved
             const relations = await this.getRelationByFi(ctx, callerId);
-            console.log('Relations', relations);
             if (!relations.includes(clientId)) {
                 return null;
             }
@@ -298,7 +295,6 @@ class eKYC extends Contract {
 
         const relationResultsIterator = await ctx.stub.getStateByPartialCompositeKey('fiId~clientId', [callerID]);
         const result = await this.getRelationsArray(ctx, relationResultsIterator);
-        console.log(result);
 
         return result;
     }

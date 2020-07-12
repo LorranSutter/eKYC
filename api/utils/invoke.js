@@ -34,21 +34,7 @@ async function main() {
         // Get the contract from the network.
         const contract = network.getContract('eKYC');
 
-        const clientData = {
-            name: 'New User',
-            dateOfBirth: '09-06-1981',
-            address: 'Toronto',
-            idNumber: '123456'
-        };
-
-        const fiData = {
-            name: 'Financial Institution 4',
-            idNumber: '123456'
-        };
-
         // Submit the specified transaction.
-        // await contract.submitTransaction('createClient', JSON.stringify(clientData));
-        // await contract.submitTransaction('createFinancialInstitution', JSON.stringify(fiData));
         const result = await contract.submitTransaction('remove', 'CLIENT5', 'FI2');
         console.log(result.toString());
         console.log('Transaction has been submitted');

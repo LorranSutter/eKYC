@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { Flex, Box, Card, Heading, Text, Form, Field, Radio, Button, Loader, Image } from 'rimble-ui';
+import { Flex, Box, Card, Heading, Form, Field, Radio, Button, Loader, Image } from 'rimble-ui';
 
 import qs from 'qs';
 
@@ -11,7 +11,7 @@ import api from '../../service/api';
 const Login = () => {
 
     const history = useHistory();
-    const [cookies, setCookie] = useCookies();
+    const [cookies, setCookie, removeCookie] = useCookies();
 
     const [validated, setValidated] = useState(false);
     const [login, setLogin] = useState("");
@@ -57,17 +57,22 @@ const Login = () => {
     useEffect(() => {
         if (validated && isLoading) {
             try {
-                // apiWithoutCredentials
-                //     .post(`/${userType}/login`, { login, password, userType })
                 api
                     .post(`/${userType}/login`, qs.stringify({ login, password, userType }))
                     .then(res => {
                         if (res.status === 200) {
+
+                            removeCookie('userJWT');
+                            removeCookie('ledgerId');
+                            removeCookie('whoRegistered');
+                            removeCookie('orgCredentials');
+
                             setCookie('userJWT', res.data.userJWT);
                             res.data.ledgerId && setCookie('ledgerId', res.data.ledgerId);
                             res.data.whoRegistered && setCookie('whoRegistered', res.data.whoRegistered);
                             res.data.orgCredentials && setCookie('orgCredentials', res.data.orgCredentials);
                             history.push(`/${userType}`);
+
                         } else {
                             console.log('Oopps... something wrong, status code ' + res.status);
                             return function cleanup() { }
@@ -120,7 +125,7 @@ const Login = () => {
                                 </Field>
                             </Box>
                             <Box width={1} px={3}>
-                                <Field label="Passoword" width={1}>
+                                <Field label="Password" width={1}>
                                     <Form.Input
                                         type="password"
                                         required

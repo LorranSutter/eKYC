@@ -43,8 +43,8 @@ const Client = () => {
                         if (clientData.status === 200 && approvedFis.status === 200) {
                             clientData = clientData.data.clientData;
                             approvedFis = approvedFis.data.approvedFis;
-                            setApprovedFiList(approvedFis);
                             setUserData(clientData, setClientData);
+                            setApprovedFiList(approvedFis);
                         } else {
                             console.log('Oopps... something wrong, status code ' + clientData.status);
                             return function cleanup() { }
@@ -166,7 +166,7 @@ const Client = () => {
             setFiIdRemove('');
         } else {
             setIsLoadingRemove(true);
-            setApprovedMsg('');
+            setRemovedMsg('');
         }
     };
 
@@ -180,7 +180,7 @@ const Client = () => {
 
     return (
         <Flex minWidth={380}>
-            <Box mx={'auto'} width={10 / 12}>
+            <Box mx={'auto'} width={[1, 10 / 12]}>
                 <Flex px={2} mx={'auto'} justifyContent='space-between'>
                     <Box my={'auto'}>
                         <Heading as={'h1'} color='primary'>eKYC</Heading>
