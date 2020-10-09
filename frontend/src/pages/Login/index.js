@@ -138,10 +138,9 @@ const Login = () => {
                         </Flex>
                         <Flex mx={-3} flexWrap={"wrap"}>
                             <Box width={1} px={3}>
-                                <Field label="Role">
+                                <Field label="Role" optional={false}>
                                     <Radio
                                         label="Client"
-                                        required
                                         my={2}
                                         value={"client"}
                                         checked={userType === "client"}
