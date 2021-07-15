@@ -1,5 +1,6 @@
 <h1 align="center">
-   eKYC
+   <img src="https://res.cloudinary.com/lorransutter/image/upload/v1626387244/eKYC/eKYC_logo.svg" height=150/>
+   <p>eKYC</p>
 </h1>
 
 <p align="center">
