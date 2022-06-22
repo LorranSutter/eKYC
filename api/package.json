@@ -30,7 +30,7 @@
         "mongoose": "^5.9.21"
     },
     "devDependencies": {
-        "async": "^3.2.0",
+        "async": "^3.2.2",
         "chai": "^4.2.0",
         "eslint": "^5.9.0",
         "mocha": "^8.0.1",
