@@ -26,7 +26,7 @@
         "fabric-ca-client": "^2.1.1",
         "fabric-network": "^2.1.1",
         "http-errors": "^1.8.0",
-        "jsonwebtoken": "^8.5.1",
+        "jsonwebtoken": "^9.0.0",
         "mongoose": "^5.9.21"
     },
     "devDependencies": {
